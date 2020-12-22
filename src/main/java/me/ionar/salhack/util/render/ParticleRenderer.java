@@ -82,16 +82,16 @@ public class ParticleRenderer {
     public static void render() {
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        new GlStateManager().enableTexture2D();
+        GlStateManager.enableTexture2D();
         for (Particle particle : particles) {
             particle.applyPhysics();
-            new GlStateManager().pushMatrix();
+            GlStateManager.pushMatrix();
             Minecraft.getMinecraft().renderEngine.bindTexture(particlesImage.GetResourceLocation());
             float scale = ((particle.life) / (getMaxLife())) / 5;
             glScalef(scale, scale, scale);
             GlStateManager.color(1F, 1F, 1F, ((particle.life) / (getMaxLife())) / 5);
             renderTexture(320, 32, particle.x * (1F / scale), particle.y * (1F / scale), 32, 32, (320 - (MathUtil.ceil(particle.life / (getMaxLife() / 10F)) * 32)), 0, 32, 32);
-            new GlStateManager().popMatrix();
+            GlStateManager.popMatrix();
         }
     }
 
