@@ -36,6 +36,8 @@
     "MixinGuiNewChat",
     "MixinModelPlayer",
     "MixinGuiContainer",
-    "MixinGuiMainMenu"
+    "MixinGuiMainMenu",
+    "MixinTileEntityBeaconRenderer",
+    "MixinTileEntityEnchantmentTableRenderer"
   ]
 }
