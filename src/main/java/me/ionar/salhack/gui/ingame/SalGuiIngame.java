@@ -10,25 +10,21 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
-public class SalGuiIngame extends GuiIngameForge
-{
-    public SalGuiIngame(Minecraft mc)
-    {
+public class SalGuiIngame extends GuiIngameForge {
+    public SalGuiIngame(Minecraft mc) {
         super(mc);
 
         ObfuscationReflectionHelper.setPrivateValue(GuiIngame.class, this, new SalGuiPlayerTabOverlay(mc, this), "field_175196_v");
-        
-        ReliantChatModule l_Mod = (ReliantChatModule)ModuleManager.Get().GetMod(ReliantChatModule.class);
-        
-        if (l_Mod != null && l_Mod.isEnabled())
-            l_Mod.Activate();
+
+        ReliantChatModule l_Mod = (ReliantChatModule) ModuleManager.Get().GetMod(ReliantChatModule.class);
+
+        if (l_Mod != null && l_Mod.isEnabled()) l_Mod.Activate();
     }
 
     @Override
-    public void renderGameOverlay(float partialTicks)
-    {
+    public void renderGameOverlay(float partialTicks) {
         super.renderGameOverlay(partialTicks);
-        
+
         SalHackMod.EVENT_BUS.post(new EventRenderGameOverlay(partialTicks, new ScaledResolution(mc)));
     }
 }

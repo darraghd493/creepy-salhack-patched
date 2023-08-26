@@ -13,14 +13,19 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.awt.*;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * Renders particles
@@ -32,45 +37,46 @@ import java.net.URI;
  */
 
 @Mixin(GuiMainMenu.class)
-public class MixinGuiMainMenu extends GuiScreen {
+public abstract class MixinGuiMainMenu extends GuiScreen {
 
     //Setup particle renderer
     private final ParticleRenderer particleRenderer = new ParticleRenderer(width, height);
-
     //Call update manager
     private final UpdateManager updateManager = UpdateManager.Get();
-
     //Load title texture
     private SalDynamicTexture TITLE;
+
+    private boolean canUpdate;
+
+    @Shadow
+    public abstract void drawScreen(int mouseX, int mouseY, float partialTicks);
 
     /**
      * Updates the particles.
      */
     @Inject(method = "initGui", at = @At("RETURN"))
     public void setup(CallbackInfo ci) {
-        TITLE = ImageManager.Get().GetDynamicTexture("Title");
+        TITLE = ImageManager.Get().GetDynamicTexture("SalHackWatermark");
         particleRenderer.updateSize(width, height);
+        canUpdate = !updateManager.getVersion().equals("") && Double.parseDouble(updateManager.getVersion().substring(2)) > Double.parseDouble(SalHackMod.VERSION.substring(2));
 
         //get updates from UpdateManager
-        GuiButton updateButton = new GuiButton(69, this.width / 2 - 100, this.height / 4 + 24, "Update Available");
-        if(!updateManager.getVersion().equals("") && Double.parseDouble(updateManager.getVersion().substring(2)) > Double.parseDouble(SalHackMod.VERSION.substring(2))) {
+        GuiButton updateButton = new GuiButton(69, this.width / 2 - 100, this.height / 4 + 24, "Update Available!");
+        if (canUpdate) {
             this.buttonList.add(updateButton);
         }
     }
 
     @Inject(method = "actionPerformed", at = @At("HEAD"))
     protected void actionPerformed(GuiButton button, CallbackInfo ci) throws IOException {
-        if(button.id == 69) {
+        if (button.id == 69)
             Desktop.getDesktop().browse(URI.create("https://github.com/CreepyOrb924/creepy-salhack/releases/"));
-        } else {
-            super.actionPerformed(button);
-        }
-
+        else super.actionPerformed(button);
     }
 
     @Inject(method = "updateScreen", at = @At("HEAD"))
     public void updatePanorama(CallbackInfo ci) {
-        particleRenderer.updateParticles();
+        ParticleRenderer.updateParticles();
     }
 
     /**
@@ -79,7 +85,7 @@ public class MixinGuiMainMenu extends GuiScreen {
     @Inject(method = "drawScreen", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/gui/GuiMainMenu;renderSkybox(IIF)V", shift = At.Shift.AFTER))
     public void replacePanoramaRenderer(int mouseX, int mouseY, float partialTicks, CallbackInfo callbackInfo) {
-        particleRenderer.renderParticles();
+        ParticleRenderer.renderParticles();
     }
 
     /**
@@ -88,6 +94,11 @@ public class MixinGuiMainMenu extends GuiScreen {
     @Inject(method = "drawScreen", at = @At(value = "RETURN"))
     public void renderSalhackVersion(int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
         this.drawString(fontRenderer, SalHackMod.NAME + " " + SalHackMod.VERSION, width - fontRenderer.getStringWidth(SalHackMod.NAME + " " + SalHackMod.VERSION) - 2, 2, 0x3FFFFFFF);
+
+        if (canUpdate) {
+            String updateManagerMessage = updateManager.getMessage();
+            this.drawString(fontRenderer, updateManagerMessage, this.width / 2 - (fontRenderer.getStringWidth(updateManagerMessage) / 2), this.height / 4 + 12, 0x3FFFFFFF);
+        }
     }
 
     /**
@@ -122,13 +133,10 @@ public class MixinGuiMainMenu extends GuiScreen {
     }
 
 
-
-
-
     /**
      * Prevents Minecraft's logo from rendering by replacing the drawTextureModalRect methods in drawScreen to
      * nothing.
-     *
+     * <p>
      * Since drawTexturedModalRect is only used for the logo, this doesn't break anything in the vanilla menu.
      */
     @Redirect(method = "drawScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiMainMenu;drawTexturedModalRect(IIIIII)V"))
@@ -138,7 +146,7 @@ public class MixinGuiMainMenu extends GuiScreen {
 
     /**
      * Changes the color of text to a more transparent and eye-pleasing color.
-     *
+     * <p>
      * This does not change the color for Forge's update alerts, which at first was a bug but after some thinking, if it
      * annoys you, just update Forge!
      */

@@ -14,23 +14,19 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 
-public class ArrayListComponent extends HudComponentItem
-{
+public class ArrayListComponent extends HudComponentItem {
     public final Value<Boolean> RainbowVal = new Value<Boolean>("Rainbow", new String[]
-            { "" }, "Makes a dynamic rainbow", true);
+            {""}, "Makes a dynamic rainbow", true);
     public final Value<Boolean> NoBackground = new Value<Boolean>("NoBackground", new String[]
-            { "" }, "NoBackground on arraylist", false);
-
-    public ArrayListComponent()
-    {
+            {""}, "NoBackground on arraylist", false);
+    private HashMap<Module, String> m_StaticModuleNames = new HashMap<Module, String>();
+    private Timer ReorderTimer = new Timer();
+    private SalRainbowUtil Rainbow = new SalRainbowUtil(9);
+    public ArrayListComponent() {
         super("ArrayList", 0, 0);
         SetHidden(false);
         ClampLevel = 1;
     }
-
-    private HashMap<Module, String> m_StaticModuleNames = new HashMap<Module, String>();
-    private Timer ReorderTimer = new Timer();
-    private SalRainbowUtil Rainbow = new SalRainbowUtil(9);
 
     public String GenerateModuleDisplayName(final Module p_Mod) {
         String l_DisplayName = p_Mod.GetArrayListDisplayName();
@@ -76,11 +72,11 @@ public class ArrayListComponent extends HudComponentItem
             final String firstName = GetStaticModuleNames(first);
             final String secondName = GetStaticModuleNames(second);
             final float dif = RenderUtil.getStringWidth(secondName) - RenderUtil.getStringWidth(firstName);
-            return (dif != 0.0f) ? ((int)dif) : secondName.compareTo(firstName);
+            return (dif != 0.0f) ? ((int) dif) : secondName.compareTo(firstName);
         };
         mods.sort(comparator);
         float xOffset = 0.0f;
-        float yOffset = 0.0f;
+        float yOffset = 1.0f;
         float maxWidth = 0.0f;
         Rainbow.OnRender();
         int l_I = 0;
@@ -91,7 +87,7 @@ public class ArrayListComponent extends HudComponentItem
                 if (width >= maxWidth) {
                     maxWidth = width;
                 }
-                final float l_StringYHeight = 8.0f;
+                final float l_StringYHeight = 11.0f;
                 final float l_RemainingXOffset = mod2.GetRemainingXArraylistOffset();
                 switch (Side) {
                     case 0:
@@ -113,18 +109,18 @@ public class ArrayListComponent extends HudComponentItem
                     case 0:
                     case 3: {
                         if (!NoBackground.getValue()) {
-                            RenderUtil.drawRect(GetX() + xOffset - 2.0f + mod2.GetRemainingXArraylistOffset(), GetY() + yOffset, GetX() + xOffset + RenderUtil.getStringWidth(name) + 4.0f, GetY() + yOffset + (l_StringYHeight + 1.5f), 1963986960);
+                            RenderUtil.drawRect(GetX() + xOffset + mod2.GetRemainingXArraylistOffset(), GetY() + yOffset, GetX() + xOffset + RenderUtil.getStringWidth(name) + 10.0f, GetY() + yOffset + (l_StringYHeight + 1.5f), 1963986960);
                         }
-                        RenderUtil.drawStringWithShadow(name, GetX() + xOffset, GetY() + yOffset, ((boolean)RainbowVal.getValue()) ? Rainbow.GetRainbowColorAt(l_I) : mod2.getColor());
+                        RenderUtil.drawStringWithShadow(name, GetX() + xOffset, GetY() + yOffset, ((boolean) RainbowVal.getValue()) ? Rainbow.GetRainbowColorAt(l_I) : mod2.getColor());
                         yOffset += l_StringYHeight + 1.5f;
                         continue;
                     }
                     case 1:
                     case 2: {
                         if (!NoBackground.getValue()) {
-                            RenderUtil.drawRect(GetX() + xOffset - 2.0f + mod2.GetRemainingXArraylistOffset(), GetY() + (GetHeight() - l_StringYHeight) + yOffset, GetX() + xOffset + RenderUtil.getStringWidth(name) + 4.0f, GetY() + (GetHeight() - l_StringYHeight) + yOffset + (l_StringYHeight + 1.5f), 1963986960);
+                            RenderUtil.drawRect(GetX() + xOffset + mod2.GetRemainingXArraylistOffset(), GetY() + (GetHeight() - l_StringYHeight) + yOffset, GetX() + xOffset + RenderUtil.getStringWidth(name) + 10.0f, GetY() + (GetHeight() - l_StringYHeight) + yOffset + (l_StringYHeight + 1.5f), 1963986960);
                         }
-                        RenderUtil.drawStringWithShadow(name, GetX() + xOffset, GetY() + (GetHeight() - l_StringYHeight) + yOffset, ((boolean)RainbowVal.getValue()) ? Rainbow.GetRainbowColorAt(l_I) : mod2.getColor());
+                        RenderUtil.drawStringWithShadow(name, GetX() + xOffset, GetY() + (GetHeight() - l_StringYHeight) + yOffset, ((boolean) RainbowVal.getValue()) ? Rainbow.GetRainbowColorAt(l_I) : mod2.getColor());
                         yOffset -= l_StringYHeight + 1.5f;
                         continue;
                     }
@@ -174,4 +170,5 @@ public class ArrayListComponent extends HudComponentItem
         }
         SetWidth(maxWidth - 10.0f);
         SetHeight(Math.abs(yOffset));
-    }}
+    }
+}

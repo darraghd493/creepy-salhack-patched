@@ -135,7 +135,7 @@ public class MenuComponent
         RenderUtil.drawGradientRect(GetX(), GetY()+17-p_OffsetY, GetX()+GetWidth(), GetY()+GetHeight(), 0x992A2A2A, 0x992A2A2A);
 
         RenderUtil.drawRect(GetX(), GetY()-p_OffsetY, GetX() + GetWidth(), GetY() + 17-p_OffsetY, 0x99000000); /// top
-        FontManager.Get().TwCenMtStd28.drawStringWithShadow(GetDisplayName(), GetX() + 2, GetY() + 1-p_OffsetY, GetTextColor());
+        FontManager.Get().TwCenMtStd28.drawStringWithShadow(GetDisplayName(), GetX() + 2, GetY() + 1-p_OffsetY + 2.50f, GetTextColor());
 
         
         if (BarTexture != null)
