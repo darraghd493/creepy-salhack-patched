@@ -6,7 +6,6 @@
 ## Salhack
 Salhack is a Forge mod made by ionar. Recently, ionar has made the decision to leave the project, and as such, this project is discontinued without a main developer. 
 
-Working on updating to **1.19.4**. 
  
 ## Installation
 
@@ -27,6 +26,8 @@ There is no git history because it contains personal info.
 Created by `ionar2` and many [others](https://github.com/ionar2/salhack/graphs/contributors). If you have any legal disagreements, please read [this](https://help.github.com/en/github/site-policy/guide-to-submitting-a-dmca-takedown-notice)
 
 ## Updates in Creepy Branch
+
+Working on updating to **1.19.4**. 
 
 Deleted lots of useless mods.
 
