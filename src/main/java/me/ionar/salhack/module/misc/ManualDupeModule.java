@@ -11,26 +11,30 @@ import java.util.Comparator;
 
 public class ManualDupeModule extends Module {
 
-    public ManualDupeModule() {
-        super("ManualDupe", new String[] {""}, "For dupe button, disregard.", "NONE", -1, ModuleType.MISC);
-    }
-
     private boolean noBypass;
+
+    public ManualDupeModule() {
+        super("ManualDupe", new String[]{""}, "For dupe button, disregard.", "NONE", -1, ModuleType.MISC);
+    }
 
     @Override
     public void onEnable() {
+        if (mc.world == null) {
+            this.onDisable();
+            return;
+        }
 
         super.onEnable();
 
         Entity l_Entity = mc.world.loadedEntityList.stream()
-                .filter(p_Entity -> isValidEntity(p_Entity))
+                .filter(this::isValidEntity)
                 .min(Comparator.comparing(p_Entity -> mc.player.getDistance(p_Entity)))
                 .orElse(null);
 
-        if(mc.currentScreen instanceof GuiScreenHorseInventory && l_Entity instanceof AbstractChestHorse && mc.player.getRidingEntity() != null) {
+        if (mc.currentScreen instanceof GuiScreenHorseInventory && l_Entity instanceof AbstractChestHorse && mc.player.getRidingEntity() != null) {
             AbstractChestHorse abstractChestHorse = (AbstractChestHorse) l_Entity;
 
-            if(abstractChestHorse.hasChest()) {
+            if (abstractChestHorse.hasChest()) {
                 noBypass = true;
                 mc.player.connection.sendPacket(new CPacketUseEntity(l_Entity, EnumHand.MAIN_HAND, l_Entity.getPositionVector()));
                 noBypass = false;
@@ -41,13 +45,10 @@ public class ManualDupeModule extends Module {
 
     }
 
-    private boolean isValidEntity(Entity entity)
-    {
+    private boolean isValidEntity(Entity entity) {
         if (entity instanceof AbstractChestHorse) {
             AbstractChestHorse l_AbstractChestHorse = (AbstractChestHorse) entity;
-
-            if (!l_AbstractChestHorse.isChild() && l_AbstractChestHorse.isTame())
-                return true;
+            return !l_AbstractChestHorse.isChild() && l_AbstractChestHorse.isTame();
         }
         return false;
     }

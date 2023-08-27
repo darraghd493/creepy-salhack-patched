@@ -17,11 +17,6 @@ public class DupeModule extends Module {
 
     @EventHandler
     private Listener<EventPlayerUpdate> packetEventListener = new Listener<>(event -> {
-        if(mc.currentScreen instanceof GuiScreenHorseInventory) {
-            validGui = true;
-        } else {
-            validGui = false;
-        }
+        validGui = mc.currentScreen instanceof GuiScreenHorseInventory;
     });
-    
 }

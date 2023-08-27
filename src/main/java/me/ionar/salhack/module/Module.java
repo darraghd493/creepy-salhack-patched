@@ -358,9 +358,11 @@ public class Module implements Listenable
         return enabled;
     }
 
-    public void setEnabled(boolean enabled)
-    {
+    public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+
+        if (enabled) onEnable();
+        else onDisable();
     }
 
     public ModuleType getType()

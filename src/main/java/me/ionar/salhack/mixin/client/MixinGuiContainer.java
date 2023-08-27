@@ -22,21 +22,19 @@ import java.io.IOException;
 @Mixin(GuiContainer.class)
 public abstract class MixinGuiContainer extends GuiScreen {
 
-    private SalGuiChest salGuiChest;
     private final ChestStealerModule ChestStealer = (ChestStealerModule) ModuleManager.Get().GetMod(ChestStealerModule.class);
     private final ChestModule chestModule = (ChestModule) ModuleManager.Get().GetMod(ChestModule.class);
-
-    private SalGuiDupeButton salGuiDupeButton;
     private final DupeModule dupeModule = (DupeModule) ModuleManager.Get().GetMod(DupeModule.class);
     private final ManualDupeModule manualDupeModule = (ManualDupeModule) ModuleManager.Get().GetMod(ManualDupeModule.class);
-
-    @Shadow protected int guiLeft;
-    @Shadow protected int guiTop;
-
+    @Shadow
+    protected int guiLeft;
+    @Shadow
+    protected int guiTop;
+    private SalGuiChest salGuiChest;
+    private SalGuiDupeButton salGuiDupeButton;
 
     @Inject(method = "initGui", at = @At("RETURN"))
-    public void initGui(CallbackInfo info)
-    {
+    public void initGui(CallbackInfo info) {
         /// Clear old ones :)
         buttonList.clear();
 
@@ -47,19 +45,15 @@ public abstract class MixinGuiContainer extends GuiScreen {
         salGuiDupeButton.setWidth(100);
         salGuiChest.setWidth(150);
         updateButton();
-
     }
 
     @Override
     protected void actionPerformed(GuiButton button) throws IOException {
-        if (button.id == 1337) {
+        if (button.id == 1337)
             ChestStealer.toggle();
-        } else if(button.id == 1338) {
+        else if (button.id == 1338)
             manualDupeModule.toggle();
-        } else {
-            super.actionPerformed(button);
-        }
-
+        else super.actionPerformed(button);
     }
 
     @Inject(method = "updateScreen", at = @At("HEAD"))
@@ -68,22 +62,16 @@ public abstract class MixinGuiContainer extends GuiScreen {
     }
 
     private void updateButton() {
-        if(chestModule.isEnabled() && chestModule.validGui) {
+        if (chestModule.isEnabled() && chestModule.validGui) {
             salGuiChest.visible = true;
             if (ChestStealer.isEnabled())
                 salGuiChest.displayString = "Stop";
-            else if (!ChestStealer.isEnabled())
-                salGuiChest.displayString = ChestStealer.Mode.getValue().toString();
-        } else {
-            salGuiChest.visible = false;
-        }
+            else salGuiChest.displayString = ChestStealer.Mode.getValue().toString();
+        } else salGuiChest.visible = false;
 
-        if(dupeModule.isEnabled() && dupeModule.validGui) {
+        if (dupeModule.isEnabled() && dupeModule.validGui) {
             salGuiDupeButton.visible = true;
             salGuiDupeButton.displayString = "Dupe";
-        } else {
-            salGuiDupeButton.visible = false;
-        }
+        } else salGuiDupeButton.visible = false;
     }
-
 }
