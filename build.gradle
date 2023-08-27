@@ -93,7 +93,8 @@ dependencies {
         exclude group: 'com.google.guava', module: 'guava'
     }
     compile 'club.minnced:java-discord-rpc:2.0.2'
-    
+    compile group: 'org.slick2d', name: 'slick2d-core', version: '1.0.2'
+
     //deobfCompile group: group, name: 'LunatriusCore', version: "${project.version_minecraft}-${project.version_lunatriuscore}", classifier: 'universal'
 }
 
