@@ -24,7 +24,7 @@ public class DiscordRPCModule extends Module
     public DiscordRPCModule()
     {
         super("DiscordRPC", new String[] {"RPC"}, "Shows discord rich presence for this mod", "NONE", -1, ModuleType.MISC);
-        setEnabled(true);
+//        setEnabled(true);
     }
 
     private AutoCrystalRewrite _autoCrystal = null;
@@ -36,8 +36,12 @@ public class DiscordRPCModule extends Module
         _autoCrystal = (AutoCrystalRewrite)ModuleManager.Get().GetMod(AutoCrystalRewrite.class);
         _oldAutoCrystal = (OldAutoCrystalRewrite)ModuleManager.Get().GetMod(OldAutoCrystalRewrite.class);
 
-        if (isEnabled())
+        if (isEnabled() && !DiscordManager.Get().isEnabled())
             DiscordManager.Get().enable();
+
+        // TODO: 8/30/23 Auto enabling Modules causes several issues due to mod loading order and should be reworked.
+        //  This is a hack/feature to get it working for now.
+        setEnabled(true);
     }
 
     @Override
@@ -45,7 +49,8 @@ public class DiscordRPCModule extends Module
     {
         super.onEnable();
 
-        DiscordManager.Get().enable();
+        if (!DiscordManager.Get().isEnabled())
+            DiscordManager.Get().enable();
     }
 
     @Override
@@ -53,13 +58,7 @@ public class DiscordRPCModule extends Module
     {
         super.onDisable();
 
-        try
-        {
-            DiscordManager.Get().disable();
-        } catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
+        DiscordManager.Get().disable();
     }
 
     public String generateDetails()
