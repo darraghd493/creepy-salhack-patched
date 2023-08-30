@@ -10,42 +10,37 @@ import net.minecraft.util.math.MathHelper;
 
 import java.text.DecimalFormat;
 
-public class YawComponent extends HudComponentItem
-{
-    public YawComponent()
-    {
+public class YawComponent extends HudComponentItem {
+    private final HudModule hud = (HudModule) ModuleManager.Get().GetMod(HudModule.class);
+    private final SalRainbowUtil Rainbow = new SalRainbowUtil(9);
+    private final int i = 0;
+    public YawComponent() {
         super("Yaw", 2, 200);
     }
 
-    private HudModule l_Hud = (HudModule) ModuleManager.Get().GetMod(HudModule.class);
-    private SalRainbowUtil Rainbow = new SalRainbowUtil(9);
-    private int l_I = 0;
-
     @Override
-    public void render(int p_MouseX, int p_MouseY, float p_PartialTicks)
-    {
-        super.render(p_MouseX, p_MouseY, p_PartialTicks);
+    public void render(int mouseX, int mouseY, float partialTicks) {
+        super.render(mouseX, mouseY, partialTicks);
 
-        DecimalFormat l_Format = new DecimalFormat("#.##");
-        float l_Yaw = MathHelper.wrapDegrees(mc.player.rotationYaw);
-        
-        String direction = l_Hud.Rainbow.getValue() ? "Yaw: " + l_Format.format(l_Yaw) : ChatFormatting.GRAY + "Yaw: " + ChatFormatting.WHITE + l_Format.format(l_Yaw);
-        
+        DecimalFormat format = new DecimalFormat("#.##");
+        float yaw = MathHelper.wrapDegrees(mc.player.rotationYaw);
+
+        String direction = hud.Rainbow.getValue() ? "Yaw: " + format.format(yaw) : ChatFormatting.GRAY + "Yaw: " + ChatFormatting.WHITE + format.format(yaw);
+
         if (!direction.contains("."))
             direction += ".00";
-        else
-        {
-            String[] l_Split = direction.split("\\.");
-            
-            if (l_Split != null && l_Split[1] != null && l_Split[1].length() != 2)
+        else {
+            String[] split = direction.split("\\.");
+
+            if (split != null && split[1] != null && split[1].length() != 2)
                 direction += 0;
         }
-        
+
         SetWidth(RenderUtil.getStringWidth(direction));
         SetHeight(RenderUtil.getStringHeight(direction));
 
         Rainbow.OnRender();
-        RenderUtil.drawStringWithShadow(direction, GetX(), GetY(), l_Hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1);
+        RenderUtil.drawStringWithShadow(direction, GetX(), GetY(), hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1);
     }
 
 }

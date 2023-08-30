@@ -1,40 +1,32 @@
 package me.ionar.salhack.friend;
 
-public class Friend
-{
-    public Friend(String p_Name, String p_Alias, String p_Cape)
-    {
-        Name = p_Name;
-        Alias = p_Alias;
-        Cape = p_Cape;
-    }
-    
-    private String Name;
+public class Friend {
+    private final String Name;
     private String Alias;
     private String Cape;
-    
-    public void SetAlias(String p_Alias)
-    {
-        Alias = p_Alias;
+    public Friend(String name1, String alias1, String cape1) {
+        Name = name1;
+        Alias = alias1;
+        Cape = cape1;
     }
-    
-    public void SetCape(String p_Cape)
-    {
-        Cape = p_Cape;
+
+    public void SetAlias(String alias1) {
+        Alias = alias1;
     }
-    
-    public String GetName()
-    {
+
+    public void SetCape(String cape1) {
+        Cape = cape1;
+    }
+
+    public String GetName() {
         return Name;
     }
-    
-    public String GetAlias()
-    {
+
+    public String GetAlias() {
         return Alias;
     }
-    
-    public String GetCape()
-    {
+
+    public String GetCape() {
         return Cape;
     }
 }

@@ -1,9 +1,5 @@
 package me.ionar.salhack.module.render;
 
-import java.util.HashMap;
-
-import org.lwjgl.opengl.GL11;
-
 import me.ionar.salhack.events.render.RenderEvent;
 import me.ionar.salhack.module.Module;
 import me.zero.alpine.fork.listener.EventHandler;
@@ -15,28 +11,15 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.Vec3d;
+import org.lwjgl.opengl.GL11;
 
-public class SkeletonModule extends Module
-{
-    public SkeletonModule()
-    {
-        super("Skeleton", new String[] {"Skelly", "Skellyboi"}, "Renders player entities skeletons", "NONE", -1, ModuleType.RENDER);
-    }
+import java.util.HashMap;
 
-    private ICamera camera = new Frustum();
+public class SkeletonModule extends Module {
     private static final HashMap<EntityPlayer, float[][]> entities = new HashMap<>();
-
-    private Vec3d getVec3(RenderEvent event, EntityPlayer e)
-    {
-      float pt = event.getPartialTicks();
-      double x = e.lastTickPosX + (e.posX - e.lastTickPosX) * pt;
-      double y = e.lastTickPosY + (e.posY - e.lastTickPosY) * pt;
-      double z = e.lastTickPosZ + (e.posZ - e.lastTickPosZ) * pt;
-      return new Vec3d(x, y, z);
-    }
-    
+    private final ICamera camera = new Frustum();
     @EventHandler
-    private Listener<RenderEvent> onRenderEvent = new Listener<>(event ->
+    private final Listener<RenderEvent> onRenderEvent = new Listener<>(event ->
     {
         if (mc.getRenderManager() == null || mc.getRenderManager().options == null)
             return;
@@ -47,22 +30,36 @@ public class SkeletonModule extends Module
         entities.keySet().removeIf(this::doesntContain);
 
         mc.world.playerEntities.forEach(e -> drawSkeleton(event, e));
-        
+
         Gui.drawRect(0, 0, 0, 0, 0);
         startEnd(false);
     });
 
-    private void drawSkeleton(RenderEvent event, EntityPlayer e)
-    {
-        double d3 = mc.player.lastTickPosX + (mc.player.posX - mc.player.lastTickPosX) * (double)event.getPartialTicks();
-        double d4 = mc.player.lastTickPosY + (mc.player.posY - mc.player.lastTickPosY) * (double)event.getPartialTicks();
-        double d5 = mc.player.lastTickPosZ + (mc.player.posZ - mc.player.lastTickPosZ) * (double)event.getPartialTicks();
-        
-        camera.setPosition(d3,  d4,  d5);
-        
+    public SkeletonModule() {
+        super("Skeleton", new String[]{"Skelly", "Skellyboi"}, "Renders player entities skeletons", "NONE", -1, ModuleType.RENDER);
+    }
+
+    public static void addEntity(EntityPlayer e, ModelPlayer model) {
+        entities.put(e, new float[][]{{model.bipedHead.rotateAngleX, model.bipedHead.rotateAngleY, model.bipedHead.rotateAngleZ}, {model.bipedRightArm.rotateAngleX, model.bipedRightArm.rotateAngleY, model.bipedRightArm.rotateAngleZ}, {model.bipedLeftLeg.rotateAngleX, model.bipedLeftLeg.rotateAngleY, model.bipedLeftLeg.rotateAngleZ}, {model.bipedRightLeg.rotateAngleX, model.bipedRightLeg.rotateAngleY, model.bipedRightLeg.rotateAngleZ}, {model.bipedLeftLeg.rotateAngleX, model.bipedLeftLeg.rotateAngleY, model.bipedLeftLeg.rotateAngleZ}});
+    }
+
+    private Vec3d getVec3(RenderEvent event, EntityPlayer e) {
+        float pt = event.getPartialTicks();
+        double x = e.lastTickPosX + (e.posX - e.lastTickPosX) * pt;
+        double y = e.lastTickPosY + (e.posY - e.lastTickPosY) * pt;
+        double z = e.lastTickPosZ + (e.posZ - e.lastTickPosZ) * pt;
+        return new Vec3d(x, y, z);
+    }
+
+    private void drawSkeleton(RenderEvent event, EntityPlayer e) {
+        double d3 = mc.player.lastTickPosX + (mc.player.posX - mc.player.lastTickPosX) * (double) event.getPartialTicks();
+        double d4 = mc.player.lastTickPosY + (mc.player.posY - mc.player.lastTickPosY) * (double) event.getPartialTicks();
+        double d5 = mc.player.lastTickPosZ + (mc.player.posZ - mc.player.lastTickPosZ) * (double) event.getPartialTicks();
+
+        camera.setPosition(d3, d4, d5);
+
         float[][] entPos = entities.get(e);
-        if (entPos != null && e.isEntityAlive() && camera.isBoundingBoxInFrustum(e.getEntityBoundingBox()) && !e.isDead && e != mc.player && !e.isPlayerSleeping())
-        {
+        if (entPos != null && e.isEntityAlive() && camera.isBoundingBoxInFrustum(e.getEntityBoundingBox()) && !e.isDead && e != mc.player && !e.isPlayerSleeping()) {
             GL11.glPushMatrix();
             GL11.glEnable(2848);
             GL11.glLineWidth(1.0F);
@@ -80,11 +77,11 @@ public class SkeletonModule extends Module
             GlStateManager.color(1f, 1f, 1f, 1.0F);
             GL11.glTranslated(-0.125D, yOff, 0.0D);
             if (entPos[3][0] != 0.0F)
-              GL11.glRotatef(entPos[3][0] * 57.295776F, 1.0F, 0.0F, 0.0F); 
+                GL11.glRotatef(entPos[3][0] * 57.295776F, 1.0F, 0.0F, 0.0F);
             if (entPos[3][1] != 0.0F)
-              GL11.glRotatef(entPos[3][1] * 57.295776F, 0.0F, 1.0F, 0.0F); 
+                GL11.glRotatef(entPos[3][1] * 57.295776F, 0.0F, 1.0F, 0.0F);
             if (entPos[3][2] != 0.0F)
-              GL11.glRotatef(entPos[3][2] * 57.295776F, 0.0F, 0.0F, 1.0F); 
+                GL11.glRotatef(entPos[3][2] * 57.295776F, 0.0F, 0.0F, 1.0F);
             GL11.glBegin(3);
             GL11.glVertex3d(0.0D, 0.0D, 0.0D);
             GL11.glVertex3d(0.0D, -yOff, 0.0D);
@@ -94,11 +91,11 @@ public class SkeletonModule extends Module
             GlStateManager.color(1f, 1f, 1f, 1.0F);
             GL11.glTranslated(0.125D, yOff, 0.0D);
             if (entPos[4][0] != 0.0F)
-              GL11.glRotatef(entPos[4][0] * 57.295776F, 1.0F, 0.0F, 0.0F); 
+                GL11.glRotatef(entPos[4][0] * 57.295776F, 1.0F, 0.0F, 0.0F);
             if (entPos[4][1] != 0.0F)
-              GL11.glRotatef(entPos[4][1] * 57.295776F, 0.0F, 1.0F, 0.0F); 
+                GL11.glRotatef(entPos[4][1] * 57.295776F, 0.0F, 1.0F, 0.0F);
             if (entPos[4][2] != 0.0F)
-              GL11.glRotatef(entPos[4][2] * 57.295776F, 0.0F, 0.0F, 1.0F); 
+                GL11.glRotatef(entPos[4][2] * 57.295776F, 0.0F, 0.0F, 1.0F);
             GL11.glBegin(3);
             GL11.glVertex3d(0.0D, 0.0D, 0.0D);
             GL11.glVertex3d(0.0D, -yOff, 0.0D);
@@ -112,11 +109,11 @@ public class SkeletonModule extends Module
             GlStateManager.color(1f, 1f, 1f, 1.0F);
             GL11.glTranslated(-0.375D, yOff + 0.55D, 0.0D);
             if (entPos[1][0] != 0.0F)
-              GL11.glRotatef(entPos[1][0] * 57.295776F, 1.0F, 0.0F, 0.0F); 
+                GL11.glRotatef(entPos[1][0] * 57.295776F, 1.0F, 0.0F, 0.0F);
             if (entPos[1][1] != 0.0F)
-              GL11.glRotatef(entPos[1][1] * 57.295776F, 0.0F, 1.0F, 0.0F); 
+                GL11.glRotatef(entPos[1][1] * 57.295776F, 0.0F, 1.0F, 0.0F);
             if (entPos[1][2] != 0.0F)
-              GL11.glRotatef(-entPos[1][2] * 57.295776F, 0.0F, 0.0F, 1.0F); 
+                GL11.glRotatef(-entPos[1][2] * 57.295776F, 0.0F, 0.0F, 1.0F);
             GL11.glBegin(3);
             GL11.glVertex3d(0.0D, 0.0D, 0.0D);
             GL11.glVertex3d(0.0D, -0.5D, 0.0D);
@@ -125,11 +122,11 @@ public class SkeletonModule extends Module
             GL11.glPushMatrix();
             GL11.glTranslated(0.375D, yOff + 0.55D, 0.0D);
             if (entPos[2][0] != 0.0F)
-              GL11.glRotatef(entPos[2][0] * 57.295776F, 1.0F, 0.0F, 0.0F); 
+                GL11.glRotatef(entPos[2][0] * 57.295776F, 1.0F, 0.0F, 0.0F);
             if (entPos[2][1] != 0.0F)
-              GL11.glRotatef(entPos[2][1] * 57.295776F, 0.0F, 1.0F, 0.0F); 
+                GL11.glRotatef(entPos[2][1] * 57.295776F, 0.0F, 1.0F, 0.0F);
             if (entPos[2][2] != 0.0F)
-              GL11.glRotatef(-entPos[2][2] * 57.295776F, 0.0F, 0.0F, 1.0F); 
+                GL11.glRotatef(-entPos[2][2] * 57.295776F, 0.0F, 0.0F, 1.0F);
             GL11.glBegin(3);
             GL11.glVertex3d(0.0D, 0.0D, 0.0D);
             GL11.glVertex3d(0.0D, -0.5D, 0.0D);
@@ -140,7 +137,7 @@ public class SkeletonModule extends Module
             GlStateManager.color(1f, 1f, 1f, 1.0F);
             GL11.glTranslated(0.0D, yOff + 0.55D, 0.0D);
             if (entPos[0][0] != 0.0F)
-              GL11.glRotatef(entPos[0][0] * 57.295776F, 1.0F, 0.0F, 0.0F); 
+                GL11.glRotatef(entPos[0][0] * 57.295776F, 1.0F, 0.0F, 0.0F);
             GL11.glBegin(3);
             GL11.glVertex3d(0.0D, 0.0D, 0.0D);
             GL11.glVertex3d(0.0D, 0.3D, 0.0D);
@@ -174,31 +171,26 @@ public class SkeletonModule extends Module
             GL11.glPopMatrix();
         }
     }
-    
+
     private void startEnd(boolean revert) {
-      if (revert) {
-        GlStateManager.pushMatrix();
-        GlStateManager.enableBlend();
-        GL11.glEnable(2848);
-        GlStateManager.disableDepth();
-        GlStateManager.disableTexture2D();
-        GL11.glHint(3154, 4354);
-      } else {
-        GlStateManager.disableBlend();
-        GlStateManager.enableTexture2D();
-        GL11.glDisable(2848);
-        GlStateManager.enableDepth();
-        GlStateManager.popMatrix();
-      } 
-      GlStateManager.depthMask(!revert);
+        if (revert) {
+            GlStateManager.pushMatrix();
+            GlStateManager.enableBlend();
+            GL11.glEnable(2848);
+            GlStateManager.disableDepth();
+            GlStateManager.disableTexture2D();
+            GL11.glHint(3154, 4354);
+        } else {
+            GlStateManager.disableBlend();
+            GlStateManager.enableTexture2D();
+            GL11.glDisable(2848);
+            GlStateManager.enableDepth();
+            GlStateManager.popMatrix();
+        }
+        GlStateManager.depthMask(!revert);
     }
 
-    public static void addEntity(EntityPlayer e, ModelPlayer model) {
-      entities.put(e, new float[][] { { model.bipedHead.rotateAngleX, model.bipedHead.rotateAngleY, model.bipedHead.rotateAngleZ }, { model.bipedRightArm.rotateAngleX, model.bipedRightArm.rotateAngleY, model.bipedRightArm.rotateAngleZ }, { model.bipedLeftLeg.rotateAngleX, model.bipedLeftLeg.rotateAngleY, model.bipedLeftLeg.rotateAngleZ }, { model.bipedRightLeg.rotateAngleX, model.bipedRightLeg.rotateAngleY, model.bipedRightLeg.rotateAngleZ }, { model.bipedLeftLeg.rotateAngleX, model.bipedLeftLeg.rotateAngleY, model.bipedLeftLeg.rotateAngleZ } });
-    }
-    
-    
     private boolean doesntContain(EntityPlayer var0) {
-      return !mc.world.playerEntities.contains(var0);
+        return !mc.world.playerEntities.contains(var0);
     }
 }

@@ -10,31 +10,27 @@ import net.minecraft.tileentity.TileEntityChest;
 
 /// @todo: Needs enum options
 
-public class ChestCountComponent extends HudComponentItem
-{
-    public ChestCountComponent()
-    {
+public class ChestCountComponent extends HudComponentItem {
+    private final HudModule hud = (HudModule) ModuleManager.Get().GetMod(HudModule.class);
+    private final SalRainbowUtil Rainbow = new SalRainbowUtil(9);
+    private final int i = 0;
+    public ChestCountComponent() {
         super("ChestCount", 2, 245);
     }
 
-    private HudModule l_Hud = (HudModule) ModuleManager.Get().GetMod(HudModule.class);
-    private SalRainbowUtil Rainbow = new SalRainbowUtil(9);
-    private int l_I = 0;
-
     @Override
-    public void render(int p_MouseX, int p_MouseY, float p_PartialTicks)
-    {
-        super.render(p_MouseX, p_MouseY, p_PartialTicks);
+    public void render(int mouseX, int mouseY, float partialTicks) {
+        super.render(mouseX, mouseY, partialTicks);
 
         long chest = mc.world.loadedTileEntityList.stream()
                 .filter(e -> e instanceof TileEntityChest).count();
 
-        final String l_Chests = l_Hud.Rainbow.getValue() ? "Chests: " + chest : ChatFormatting.GRAY + "Chests: " + ChatFormatting.WHITE + chest;
+        final String chests = hud.Rainbow.getValue() ? "Chests: " + chest : ChatFormatting.GRAY + "Chests: " + ChatFormatting.WHITE + chest;
 
         Rainbow.OnRender();
-        RenderUtil.drawStringWithShadow(l_Chests, GetX(), GetY(), l_Hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1);
+        RenderUtil.drawStringWithShadow(chests, GetX(), GetY(), hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1);
 
-        SetWidth(RenderUtil.getStringWidth(l_Chests));
-        SetHeight(RenderUtil.getStringHeight(l_Chests));
+        SetWidth(RenderUtil.getStringWidth(chests));
+        SetHeight(RenderUtil.getStringHeight(chests));
     }
 }

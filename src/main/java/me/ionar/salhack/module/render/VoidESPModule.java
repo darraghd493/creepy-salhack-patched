@@ -1,20 +1,9 @@
 package me.ionar.salhack.module.render;
 
-import static me.ionar.salhack.util.render.ESPUtil.IsVoidHole;
-import static me.ionar.salhack.util.render.ESPUtil.isBlockValid;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.lwjgl.opengl.GL11;
-
 import me.ionar.salhack.events.player.EventPlayerUpdate;
 import me.ionar.salhack.events.render.RenderEvent;
 import me.ionar.salhack.module.Module;
 import me.ionar.salhack.module.Value;
-import me.ionar.salhack.util.Hole;
-import me.ionar.salhack.util.Hole.HoleTypes;
-import me.ionar.salhack.util.render.ESPUtil.HoleModes;
 import me.zero.alpine.fork.listener.EventHandler;
 import me.zero.alpine.fork.listener.Listener;
 import net.minecraft.block.state.IBlockState;
@@ -22,66 +11,58 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
+import org.lwjgl.opengl.GL11;
 
-public class VoidESPModule extends Module
-{
-    public final Value<Integer> Radius = new Value<Integer>("Radius", new String[] { "Radius", "Range", "Distance" }, "Radius in blocks to scan for void blocks.", 8, 0, 32, 1);
+import java.util.ArrayList;
+import java.util.List;
 
-    public VoidESPModule()
-    {
-        super("VoidESP", new String[] {""}, "Highlights void blocks", "NONE", -1, ModuleType.RENDER);
-    }
-    
+import static me.ionar.salhack.util.render.ESPUtil.IsVoidHole;
+
+public class VoidESPModule extends Module {
+    public final Value<Integer> Radius = new Value<Integer>("Radius", new String[]{"Radius", "Range", "Distance"}, "Radius in blocks to scan for void blocks.", 8, 0, 32, 1);
     public final List<BlockPos> VoidBlocks = new ArrayList<>();
-    private ICamera camera = new Frustum();
-
+    private final ICamera camera = new Frustum();
     @EventHandler
-    private Listener<EventPlayerUpdate> OnPlayerUpdate = new Listener<>(p_Event ->
+    private final Listener<EventPlayerUpdate> OnPlayerUpdate = new Listener<>(event ->
     {
         if (mc.player == null)
             return;
-        
+
         VoidBlocks.clear();
-        
+
         final Vec3i playerPos = new Vec3i(mc.player.posX, mc.player.posY, mc.player.posZ);
-        
-        for (int x = playerPos.getX() - Radius.getValue(); x < playerPos.getX() + Radius.getValue(); x++)
-        {
-            for (int z = playerPos.getZ() - Radius.getValue(); z < playerPos.getZ() + Radius.getValue(); z++)
-            {
-                for (int y = playerPos.getY() + Radius.getValue(); y > playerPos.getY() - Radius.getValue(); y--)
-                {
+
+        for (int x = playerPos.getX() - Radius.getValue(); x < playerPos.getX() + Radius.getValue(); x++) {
+            for (int z = playerPos.getZ() - Radius.getValue(); z < playerPos.getZ() + Radius.getValue(); z++) {
+                for (int y = playerPos.getY() + Radius.getValue(); y > playerPos.getY() - Radius.getValue(); y--) {
                     final BlockPos blockPos = new BlockPos(x, y, z);
                     final IBlockState blockState = mc.world.getBlockState(blockPos);
-                    
+
                     if (IsVoidHole(blockPos, blockState))
                         VoidBlocks.add(blockPos);
                 }
             }
         }
     });
-
     @EventHandler
-    private Listener<RenderEvent> OnRenderEvent = new Listener<>(p_Event ->
+    private final Listener<RenderEvent> OnRenderEvent = new Listener<>(event ->
     {
         if (mc.getRenderManager() == null || mc.getRenderManager().options == null)
             return;
 
-        new ArrayList<BlockPos>(VoidBlocks).forEach(p_Pos ->
+        new ArrayList<BlockPos>(VoidBlocks).forEach(pos ->
         {
-            final AxisAlignedBB bb = new AxisAlignedBB(p_Pos.getX() - mc.getRenderManager().viewerPosX, p_Pos.getY() - mc.getRenderManager().viewerPosY,
-                    p_Pos.getZ() - mc.getRenderManager().viewerPosZ, p_Pos.getX() + 1 - mc.getRenderManager().viewerPosX, p_Pos.getY() + 1 - mc.getRenderManager().viewerPosY,
-                    p_Pos.getZ() + 1 - mc.getRenderManager().viewerPosZ);
+            final AxisAlignedBB bb = new AxisAlignedBB(pos.getX() - mc.getRenderManager().viewerPosX, pos.getY() - mc.getRenderManager().viewerPosY,
+                    pos.getZ() - mc.getRenderManager().viewerPosZ, pos.getX() + 1 - mc.getRenderManager().viewerPosX, pos.getY() + 1 - mc.getRenderManager().viewerPosY,
+                    pos.getZ() + 1 - mc.getRenderManager().viewerPosZ);
 
             camera.setPosition(mc.getRenderViewEntity().posX, mc.getRenderViewEntity().posY, mc.getRenderViewEntity().posZ);
 
             if (camera.isBoundingBoxInFrustum(new AxisAlignedBB(bb.minX + mc.getRenderManager().viewerPosX, bb.minY + mc.getRenderManager().viewerPosY, bb.minZ + mc.getRenderManager().viewerPosZ,
-                    bb.maxX + mc.getRenderManager().viewerPosX, bb.maxY + mc.getRenderManager().viewerPosY, bb.maxZ + mc.getRenderManager().viewerPosZ)))
-            {
+                    bb.maxX + mc.getRenderManager().viewerPosX, bb.maxY + mc.getRenderManager().viewerPosY, bb.maxZ + mc.getRenderManager().viewerPosZ))) {
                 GlStateManager.pushMatrix();
                 GlStateManager.enableBlend();
                 GlStateManager.disableDepth();
@@ -104,4 +85,8 @@ public class VoidESPModule extends Module
             }
         });
     });
+
+    public VoidESPModule() {
+        super("VoidESP", new String[]{""}, "Highlights void blocks", "NONE", -1, ModuleType.RENDER);
+    }
 }

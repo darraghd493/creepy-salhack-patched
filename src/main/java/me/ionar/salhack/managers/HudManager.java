@@ -1,19 +1,7 @@
 package me.ionar.salhack.managers;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.lwjgl.opengl.GL11;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import me.ionar.salhack.gui.hud.GuiHudEditor;
 import me.ionar.salhack.gui.hud.HudComponentItem;
 import me.ionar.salhack.gui.hud.components.*;
@@ -22,15 +10,29 @@ import me.ionar.salhack.main.Wrapper;
 import me.ionar.salhack.module.Value;
 import me.ionar.salhack.module.ValueListeners;
 import net.minecraft.client.gui.GuiScreen;
+import org.lwjgl.opengl.GL11;
 
-public class HudManager
-{
-    public HudManager()
-    {
+import java.io.IOException;
+import java.io.Writer;
+import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+public class HudManager {
+    public ArrayList<HudComponentItem> Items = new ArrayList<HudComponentItem>();
+    private boolean CanSave = false;
+
+    public HudManager() {
     }
-    
-    public void Init()
-    {
+
+    public static HudManager Get() {
+        return SalHack.GetHudManager();
+    }
+
+    public void Init() {
         Add(new WatermarkComponent());
         Add(new WelcomeComponent());
         Add(new ArrayListComponent());
@@ -62,126 +64,97 @@ public class HudManager
 
         /// MUST be last in list
         Add(new SelectorMenuComponent());
-        
+
         CanSave = false;
-        
-        Items.forEach(p_Item ->
+
+        Items.forEach(item ->
         {
-            p_Item.LoadSettings();
+            item.LoadSettings();
         });
 
         CanSave = true;
     }
-    
-    public ArrayList<HudComponentItem> Items = new ArrayList<HudComponentItem>();
-    private boolean CanSave = false;
 
-    public void Add(HudComponentItem p_Item)
-    {
-        try
-        {
-            for (Field field : p_Item.getClass().getDeclaredFields())
-            {
-                if (Value.class.isAssignableFrom(field.getType()))
-                {
-                    if (!field.isAccessible())
-                    {
+    public void Add(HudComponentItem item) {
+        try {
+            for (Field field : item.getClass().getDeclaredFields()) {
+                if (Value.class.isAssignableFrom(field.getType())) {
+                    if (!field.isAccessible()) {
                         field.setAccessible(true);
                     }
-                    
-                    final Value val = (Value) field.get(p_Item);
-                    
-                    ValueListeners listener = new ValueListeners()
-                    {
+
+                    final Value val = (Value) field.get(item);
+
+                    ValueListeners listener = new ValueListeners() {
                         @Override
-                        public void OnValueChange(Value p_Val)
-                        {
-                            ScheduleSave(p_Item);
+                        public void OnValueChange(Value val) {
+                            ScheduleSave(item);
                         }
                     };
-                    
+
                     val.Listener = listener;
-                    p_Item.ValueList.add(val);
+                    item.ValueList.add(val);
                 }
             }
-            Items.add(p_Item);
-        }
-        catch (Exception e)
-        {
+            Items.add(item);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void OnRender(float p_PartialTicks)
-    {
-        GuiScreen l_CurrScreen = Wrapper.GetMC().currentScreen;
-        
-        if (l_CurrScreen != null)
-        {
-            if (l_CurrScreen instanceof GuiHudEditor)
-            {
+    public void OnRender(float partialTicks) {
+        GuiScreen currScreen = Wrapper.GetMC().currentScreen;
+
+        if (currScreen != null) {
+            if (currScreen instanceof GuiHudEditor) {
                 return;
             }
         }
-        
+
         GL11.glPushMatrix();
-        
-        Items.forEach(p_Item ->
+
+        Items.forEach(item ->
         {
-            if (!p_Item.IsHidden() && !p_Item.HasFlag(HudComponentItem.OnlyVisibleInHudEditor))
-            {
-                try
-                {
-                    p_Item.render(0, 0, p_PartialTicks);
-                }
-                catch (Exception e)
-                {
-                    System.out.println(e.toString());
+            if (!item.IsHidden() && !item.HasFlag(HudComponentItem.OnlyVisibleInHudEditor)) {
+                try {
+                    item.render(0, 0, partialTicks);
+                } catch (Exception e) {
+                    System.out.println(e);
                 }
             }
         });
-        
+
         GL11.glPopMatrix();
     }
 
-    public static HudManager Get()
-    {
-        return SalHack.GetHudManager();
-    }
-
-    public void ScheduleSave(HudComponentItem p_Item)
-    {
+    public void ScheduleSave(HudComponentItem item) {
         if (!CanSave)
             return;
-        
-        try
-        {
+
+        try {
             GsonBuilder builder = new GsonBuilder();
-            
+
             Gson gson = builder.setPrettyPrinting().create();
 
-            Writer writer = Files.newBufferedWriter(Paths.get("SalHack/HUD/" + p_Item.GetDisplayName() + ".json"));
+            Writer writer = Files.newBufferedWriter(Paths.get("SalHack/HUD/" + item.GetDisplayName() + ".json"));
             Map<String, String> map = new HashMap<>();
 
-            map.put("displayname", p_Item.GetDisplayName());
-            map.put("visible", !p_Item.IsHidden() ? "true" : "false");
-            map.put("PositionX", String.valueOf(p_Item.GetX()));
-            map.put("PositionY", String.valueOf(p_Item.GetY()));
-            map.put("ClampLevel", String.valueOf(p_Item.GetClampLevel()));
-            map.put("ClampPositionX", String.valueOf(p_Item.GetX()));
-            map.put("ClampPositionY", String.valueOf(p_Item.GetY()));
-            map.put("Side", String.valueOf(p_Item.GetSide()));
-            
-            for (Value l_Val : p_Item.ValueList)
-            {
-                map.put(l_Val.getName().toString(), l_Val.getValue().toString());
+            map.put("displayname", item.GetDisplayName());
+            map.put("visible", !item.IsHidden() ? "true" : "false");
+            map.put("PositionX", String.valueOf(item.GetX()));
+            map.put("PositionY", String.valueOf(item.GetY()));
+            map.put("ClampLevel", String.valueOf(item.GetClampLevel()));
+            map.put("ClampPositionX", String.valueOf(item.GetX()));
+            map.put("ClampPositionY", String.valueOf(item.GetY()));
+            map.put("Side", String.valueOf(item.GetSide()));
+
+            for (Value val : item.ValueList) {
+                map.put(val.getName(), val.getValue().toString());
             }
-            
+
             gson.toJson(map, writer);
             writer.close();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

@@ -11,26 +11,22 @@ import java.util.Date;
 
 /// @todo: Needs enum options
 
-public class TimeComponent extends HudComponentItem
-{
-    public TimeComponent()
-    {
+public class TimeComponent extends HudComponentItem {
+    private final HudModule hud = (HudModule) ModuleManager.Get().GetMod(HudModule.class);
+    private final SalRainbowUtil Rainbow = new SalRainbowUtil(9);
+    private final int i = 0;
+    public TimeComponent() {
         super("Time", 2, 110);
     }
 
-    private HudModule l_Hud = (HudModule) ModuleManager.Get().GetMod(HudModule.class);
-    private SalRainbowUtil Rainbow = new SalRainbowUtil(9);
-    private int l_I = 0;
-
     @Override
-    public void render(int p_MouseX, int p_MouseY, float p_PartialTicks)
-    {
-        super.render(p_MouseX, p_MouseY, p_PartialTicks);
+    public void render(int mouseX, int mouseY, float partialTicks) {
+        super.render(mouseX, mouseY, partialTicks);
 
         final String time = new SimpleDateFormat("h:mm a").format(new Date());
 
         Rainbow.OnRender();
-        RenderUtil.drawStringWithShadow(time, GetX(), GetY(), l_Hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1);
+        RenderUtil.drawStringWithShadow(time, GetX(), GetY(), hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1);
 
         SetWidth(RenderUtil.getStringWidth(time));
         SetHeight(RenderUtil.getStringHeight(time));

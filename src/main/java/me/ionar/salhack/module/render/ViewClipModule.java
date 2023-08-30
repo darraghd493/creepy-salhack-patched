@@ -5,16 +5,14 @@ import me.ionar.salhack.module.Module;
 import me.zero.alpine.fork.listener.EventHandler;
 import me.zero.alpine.fork.listener.Listener;
 
-public class ViewClipModule extends Module
-{
-    public ViewClipModule()
-    {
-        super("ViewClip", new String[] {"ViewC"}, "Prevents the third person camera from ray-tracing", "NONE", -1, ModuleType.RENDER);
-    }
-
+public class ViewClipModule extends Module {
     @EventHandler
-    private Listener<EventRenderOrientCamera> OnRenderOrientCamera = new Listener<>(event ->
+    private final Listener<EventRenderOrientCamera> OnRenderOrientCamera = new Listener<>(event ->
     {
         event.cancel();
     });
+
+    public ViewClipModule() {
+        super("ViewClip", new String[]{"ViewC"}, "Prevents the third person camera from ray-tracing", "NONE", -1, ModuleType.RENDER);
+    }
 }

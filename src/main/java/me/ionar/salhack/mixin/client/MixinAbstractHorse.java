@@ -10,29 +10,24 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractHorse.class)
-public class MixinAbstractHorse
-{
+public class MixinAbstractHorse {
     @Inject(method = "canBeSteered", at = @At("HEAD"), cancellable = true)
-    public void canBeSteered(CallbackInfoReturnable<Boolean> cir)
-    {
-        EventSteerEntity l_Event = new EventSteerEntity();
-        SalHackMod.EVENT_BUS.post(l_Event);
+    public void canBeSteered(CallbackInfoReturnable<Boolean> cir) {
+        EventSteerEntity event = new EventSteerEntity();
+        SalHackMod.EVENT_BUS.post(event);
 
-        if (l_Event.isCancelled())
-        {
+        if (event.isCancelled()) {
             cir.cancel();
             cir.setReturnValue(true);
         }
     }
 
     @Inject(method = "isHorseSaddled", at = @At("HEAD"), cancellable = true)
-    public void isHorseSaddled(CallbackInfoReturnable<Boolean> cir)
-    {
-        EventHorseSaddled l_Event = new EventHorseSaddled();
-        SalHackMod.EVENT_BUS.post(l_Event);
+    public void isHorseSaddled(CallbackInfoReturnable<Boolean> cir) {
+        EventHorseSaddled event = new EventHorseSaddled();
+        SalHackMod.EVENT_BUS.post(event);
 
-        if (l_Event.isCancelled())
-        {
+        if (event.isCancelled()) {
             cir.cancel();
             cir.setReturnValue(true);
         }

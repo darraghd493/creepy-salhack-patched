@@ -1,18 +1,11 @@
 package me.ionar.salhack.util.entity;
 
-import java.text.DecimalFormat;
-
-import me.ionar.salhack.util.Hole.HoleTypes;
-import net.minecraft.block.BlockHopper;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemAppleGold;
 import net.minecraft.item.ItemFood;
-import net.minecraft.item.ItemShulkerBox;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -21,84 +14,74 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
-public class PlayerUtil
-{
-    private static Minecraft mc = Minecraft.getMinecraft();
+import java.text.DecimalFormat;
 
-    public static int GetItemSlot(Item input)
-    {
+public class PlayerUtil {
+    final static DecimalFormat Formatter = new DecimalFormat("#.#");
+    private static final Minecraft mc = Minecraft.getMinecraft();
+
+    public static int GetItemSlot(Item input) {
         if (mc.player == null)
             return 0;
 
-        for (int i = 0; i < mc.player.inventoryContainer.getInventory().size(); ++i)
-        {
+        for (int i = 0; i < mc.player.inventoryContainer.getInventory().size(); ++i) {
             if (i == 0 || i == 5 || i == 6 || i == 7 || i == 8)
                 continue;
 
             ItemStack s = mc.player.inventoryContainer.getInventory().get(i);
-            
+
             if (s.isEmpty())
                 continue;
-            
-            if (s.getItem() == input)
-            {
+
+            if (s.getItem() == input) {
                 return i;
             }
         }
         return -1;
     }
 
-    public static int GetRecursiveItemSlot(Item input)
-    {
+    public static int GetRecursiveItemSlot(Item input) {
         if (mc.player == null)
             return 0;
 
-        for (int i = mc.player.inventoryContainer.getInventory().size() - 1; i > 0; --i)
-        {
+        for (int i = mc.player.inventoryContainer.getInventory().size() - 1; i > 0; --i) {
             if (i == 0 || i == 5 || i == 6 || i == 7 || i == 8)
                 continue;
 
             ItemStack s = mc.player.inventoryContainer.getInventory().get(i);
-            
+
             if (s.isEmpty())
                 continue;
-            
-            if (s.getItem() == input)
-            {
+
+            if (s.getItem() == input) {
                 return i;
             }
         }
         return -1;
     }
-    
-    public static int GetItemSlotNotHotbar(Item input)
-    {
+
+    public static int GetItemSlotNotHotbar(Item input) {
         if (mc.player == null)
             return 0;
-        
-        for (int i = 9; i < 36; i++)
-        {
+
+        for (int i = 9; i < 36; i++) {
             final Item item = mc.player.inventory.getStackInSlot(i).getItem();
-            if (item == input)
-            {
+            if (item == input) {
                 return i;
             }
         }
         return -1;
     }
-    
-    public static int GetItemCount(Item input)
-    {
+
+    public static int GetItemCount(Item input) {
         if (mc.player == null)
             return 0;
-        
+
         int items = 0;
 
-        for (int i = 0; i < 45; i++)
-        {
+        for (int i = 0; i < 45; i++) {
             final ItemStack stack = mc.player.inventory.getStackInSlot(i);
-            if (stack.getItem() == input)
-            {
+            if (stack.getItem() == input) {
                 items += stack.getCount();
             }
         }
@@ -106,63 +89,52 @@ public class PlayerUtil
         return items;
     }
 
-    public static boolean CanSeeBlock(BlockPos p_Pos)
-    {
+    public static boolean CanSeeBlock(BlockPos pos) {
         if (mc.player == null)
             return false;
-        
-        return mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + (double)mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(p_Pos.getX(), p_Pos.getY(), p_Pos.getZ()), false, true, false) == null;
+
+        return mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + (double) mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(pos.getX(), pos.getY(), pos.getZ()), false, true, false) == null;
     }
-    
-    public static boolean isCurrentViewEntity()
-    {
+
+    public static boolean isCurrentViewEntity() {
         return mc.getRenderViewEntity() == mc.player;
     }
 
-    public static boolean IsEating()
-    {
+    public static boolean IsEating() {
         return mc.player != null && mc.player.getHeldItemMainhand().getItem() instanceof ItemFood && mc.player.isHandActive();
     }
-    
-    public static int GetItemInHotbar(Item p_Item)
-    {
-        for (int l_I = 0; l_I < 9; ++l_I)
-        {
-            ItemStack l_Stack = mc.player.inventory.getStackInSlot(l_I);
-            
-            if (l_Stack != ItemStack.EMPTY)
-            {
-                if (l_Stack.getItem() == p_Item)
-                {
-                    return l_I;
+
+    public static int GetItemInHotbar(Item item) {
+        for (int i = 0; i < 9; ++i) {
+            ItemStack stack = mc.player.inventory.getStackInSlot(i);
+
+            if (stack != ItemStack.EMPTY) {
+                if (stack.getItem() == item) {
+                    return i;
                 }
             }
         }
-        
+
         return -1;
     }
 
-    public static BlockPos GetLocalPlayerPosFloored()
-    {
+    public static BlockPos GetLocalPlayerPosFloored() {
         return new BlockPos(Math.floor(mc.player.posX), Math.floor(mc.player.posY), Math.floor(mc.player.posZ));
     }
 
-    public static BlockPos EntityPosToFloorBlockPos(Entity e)
-    {
+    public static BlockPos EntityPosToFloorBlockPos(Entity e) {
         return new BlockPos(Math.floor(e.posX), Math.floor(e.posY), Math.floor(e.posZ));
     }
-    
-    public static float GetHealthWithAbsorption()
-    {
+
+    public static float GetHealthWithAbsorption() {
         return mc.player.getHealth() + mc.player.getAbsorptionAmount();
     }
-    
-    public static boolean IsPlayerInHole()
-    {
+
+    public static boolean IsPlayerInHole() {
         BlockPos blockPos = GetLocalPlayerPosFloored();
-        
+
         IBlockState blockState = mc.world.getBlockState(blockPos);
-        
+
         if (blockState.getBlock() != Blocks.AIR)
             return false;
 
@@ -173,105 +145,77 @@ public class PlayerUtil
             return false;
 
         final BlockPos[] touchingBlocks = new BlockPos[]
-        { blockPos.north(), blockPos.south(), blockPos.east(), blockPos.west() };
+                {blockPos.north(), blockPos.south(), blockPos.east(), blockPos.west()};
 
         int validHorizontalBlocks = 0;
-        for (BlockPos touching : touchingBlocks)
-        {
+        for (BlockPos touching : touchingBlocks) {
             final IBlockState touchingState = mc.world.getBlockState(touching);
             if ((touchingState.getBlock() != Blocks.AIR) && touchingState.isFullBlock())
                 validHorizontalBlocks++;
         }
 
-        if (validHorizontalBlocks < 4)
-            return false;
-
-        return true;
+        return validHorizontalBlocks >= 4;
     }
-    
-    public static void PacketFacePitchAndYaw(float p_Pitch, float p_Yaw)
-    {
-        boolean l_IsSprinting = mc.player.isSprinting();
 
-        if (l_IsSprinting != mc.player.serverSprintState)
-        {
-            if (l_IsSprinting)
-            {
+    public static void PacketFacePitchAndYaw(float pitch, float yaw) {
+        boolean isSprinting = mc.player.isSprinting();
+
+        if (isSprinting != mc.player.serverSprintState) {
+            if (isSprinting) {
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SPRINTING));
-            }
-            else
-            {
+            } else {
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
             }
 
-            mc.player.serverSprintState = l_IsSprinting;
+            mc.player.serverSprintState = isSprinting;
         }
 
-        boolean l_IsSneaking = mc.player.isSneaking();
+        boolean isSneaking = mc.player.isSneaking();
 
-        if (l_IsSneaking != mc.player.serverSneakState)
-        {
-            if (l_IsSneaking)
-            {
+        if (isSneaking != mc.player.serverSneakState) {
+            if (isSneaking) {
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
-            }
-            else
-            {
+            } else {
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SNEAKING));
             }
 
-            mc.player.serverSneakState = l_IsSneaking;
+            mc.player.serverSneakState = isSneaking;
         }
 
-        if (PlayerUtil.isCurrentViewEntity())
-        {
-            float l_Pitch = p_Pitch;
-            float l_Yaw = p_Yaw;
-            
+        if (PlayerUtil.isCurrentViewEntity()) {
             AxisAlignedBB axisalignedbb = mc.player.getEntityBoundingBox();
-            double l_PosXDifference = mc.player.posX - mc.player.lastReportedPosX;
-            double l_PosYDifference = axisalignedbb.minY - mc.player.lastReportedPosY;
-            double l_PosZDifference = mc.player.posZ - mc.player.lastReportedPosZ;
-            double l_YawDifference = (double)(l_Yaw - mc.player.lastReportedYaw);
-            double l_RotationDifference = (double)(l_Pitch - mc.player.lastReportedPitch);
+            double posXDifference = mc.player.posX - mc.player.lastReportedPosX;
+            double posYDifference = axisalignedbb.minY - mc.player.lastReportedPosY;
+            double posZDifference = mc.player.posZ - mc.player.lastReportedPosZ;
+            double yawDifference = yaw - mc.player.lastReportedYaw;
+            double rotationDifference = pitch - mc.player.lastReportedPitch;
             ++mc.player.positionUpdateTicks;
-            boolean l_MovedXYZ = l_PosXDifference * l_PosXDifference + l_PosYDifference * l_PosYDifference + l_PosZDifference * l_PosZDifference > 9.0E-4D || mc.player.positionUpdateTicks >= 20;
-            boolean l_MovedRotation = l_YawDifference != 0.0D || l_RotationDifference != 0.0D;
+            boolean movedXYZ = posXDifference * posXDifference + posYDifference * posYDifference + posZDifference * posZDifference > 9.0E-4D || mc.player.positionUpdateTicks >= 20;
+            boolean movedRotation = yawDifference != 0.0D || rotationDifference != 0.0D;
 
-            if (mc.player.isRiding())
-            {
-                mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.motionX, -999.0D, mc.player.motionZ, l_Yaw, l_Pitch, mc.player.onGround));
-                l_MovedXYZ = false;
-            }
-            else if (l_MovedXYZ && l_MovedRotation)
-            {
-                mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX, axisalignedbb.minY, mc.player.posZ, l_Yaw, l_Pitch, mc.player.onGround));
-            }
-            else if (l_MovedXYZ)
-            {
+            if (mc.player.isRiding()) {
+                mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.motionX, -999.0D, mc.player.motionZ, yaw, pitch, mc.player.onGround));
+                movedXYZ = false;
+            } else if (movedXYZ && movedRotation) {
+                mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX, axisalignedbb.minY, mc.player.posZ, yaw, pitch, mc.player.onGround));
+            } else if (movedXYZ) {
                 mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, axisalignedbb.minY, mc.player.posZ, mc.player.onGround));
-            }
-            else if (l_MovedRotation)
-            {
-                mc.player.connection.sendPacket(new CPacketPlayer.Rotation(l_Yaw, l_Pitch, mc.player.onGround));
-            }
-            else if (mc.player.prevOnGround != mc.player.onGround)
-            {
+            } else if (movedRotation) {
+                mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, pitch, mc.player.onGround));
+            } else if (mc.player.prevOnGround != mc.player.onGround) {
                 mc.player.connection.sendPacket(new CPacketPlayer(mc.player.onGround));
             }
 
-            if (l_MovedXYZ)
-            {
+            if (movedXYZ) {
                 mc.player.lastReportedPosX = mc.player.posX;
                 mc.player.lastReportedPosY = axisalignedbb.minY;
                 mc.player.lastReportedPosZ = mc.player.posZ;
                 mc.player.positionUpdateTicks = 0;
             }
 
-            if (l_MovedRotation)
-            {
-                mc.player.lastReportedYaw = l_Yaw;
-                mc.player.lastReportedPitch = l_Pitch;
+            if (movedRotation) {
+                mc.player.lastReportedYaw = yaw;
+                mc.player.lastReportedPitch = pitch;
             }
 
             mc.player.prevOnGround = mc.player.onGround;
@@ -279,73 +223,59 @@ public class PlayerUtil
         }
     }
 
-    public static boolean IsPlayerTrapped()
-    {
-        BlockPos l_PlayerPos = GetLocalPlayerPosFloored();
-        
-        final BlockPos[] l_TrapPositions = {
-                l_PlayerPos.down(),
-                l_PlayerPos.up().up(),
-                l_PlayerPos.north(),
-                l_PlayerPos.south(),
-                l_PlayerPos.east(),
-                l_PlayerPos.west(),
-                l_PlayerPos.north().up(),
-                l_PlayerPos.south().up(),
-                l_PlayerPos.east().up(),
-                l_PlayerPos.west().up(),
-                };
-        
-        for (BlockPos l_Pos : l_TrapPositions)
-        {
-            IBlockState l_State = mc.world.getBlockState(l_Pos);
-            
-            if (l_State.getBlock() != Blocks.OBSIDIAN && mc.world.getBlockState(l_Pos).getBlock() != Blocks.BEDROCK)
+    public static boolean IsPlayerTrapped() {
+        BlockPos playerPos = GetLocalPlayerPosFloored();
+
+        final BlockPos[] trapPositions = {
+                playerPos.down(),
+                playerPos.up().up(),
+                playerPos.north(),
+                playerPos.south(),
+                playerPos.east(),
+                playerPos.west(),
+                playerPos.north().up(),
+                playerPos.south().up(),
+                playerPos.east().up(),
+                playerPos.west().up(),
+        };
+
+        for (BlockPos pos : trapPositions) {
+            IBlockState state = mc.world.getBlockState(pos);
+
+            if (state.getBlock() != Blocks.OBSIDIAN && mc.world.getBlockState(pos).getBlock() != Blocks.BEDROCK)
                 return false;
         }
 
         return true;
     }
 
-    public static boolean IsEntityTrapped(Entity e)
-    {
-        BlockPos l_PlayerPos = EntityPosToFloorBlockPos(e);
-        
-        final BlockPos[] l_TrapPositions = {
-                l_PlayerPos.up().up(),
-                l_PlayerPos.north(),
-                l_PlayerPos.south(),
-                l_PlayerPos.east(),
-                l_PlayerPos.west(),
-                l_PlayerPos.north().up(),
-                l_PlayerPos.south().up(),
-                l_PlayerPos.east().up(),
-                l_PlayerPos.west().up(),
-                };
-        
-        for (BlockPos l_Pos : l_TrapPositions)
-        {
-            IBlockState l_State = mc.world.getBlockState(l_Pos);
-            
-            if (l_State.getBlock() != Blocks.OBSIDIAN && mc.world.getBlockState(l_Pos).getBlock() != Blocks.BEDROCK)
+    public static boolean IsEntityTrapped(Entity e) {
+        BlockPos playerPos = EntityPosToFloorBlockPos(e);
+
+        final BlockPos[] trapPositions = {
+                playerPos.up().up(),
+                playerPos.north(),
+                playerPos.south(),
+                playerPos.east(),
+                playerPos.west(),
+                playerPos.north().up(),
+                playerPos.south().up(),
+                playerPos.east().up(),
+                playerPos.west().up(),
+        };
+
+        for (BlockPos pos : trapPositions) {
+            IBlockState state = mc.world.getBlockState(pos);
+
+            if (state.getBlock() != Blocks.OBSIDIAN && mc.world.getBlockState(pos).getBlock() != Blocks.BEDROCK)
                 return false;
         }
 
         return true;
     }
-    
-    public enum FacingDirection
-    {
-        North,
-        South,
-        East,
-        West,
-    }
 
-    public static FacingDirection GetFacing()
-    {
-        switch (MathHelper.floor((double) (mc.player.rotationYaw * 8.0F / 360.0F) + 0.5D) & 7)
-        {
+    public static FacingDirection GetFacing() {
+        switch (MathHelper.floor((double) (mc.player.rotationYaw * 8.0F / 360.0F) + 0.5D) & 7) {
             case 0:
             case 1:
                 return FacingDirection.South;
@@ -362,22 +292,26 @@ public class PlayerUtil
         return FacingDirection.North;
     }
 
-    final static DecimalFormat Formatter = new DecimalFormat("#.#");
-    
-    public static float getSpeedInKM()
-    {
+    public static float getSpeedInKM() {
         final double deltaX = mc.player.posX - mc.player.prevPosX;
         final double deltaZ = mc.player.posZ - mc.player.prevPosZ;
-        
-        float l_Distance = MathHelper.sqrt(deltaX * deltaX + deltaZ * deltaZ);
 
-        double l_KMH = Math.floor(( l_Distance/1000.0f ) / ( 0.05f/3600.0f ));
-        
-        String l_Formatter = Formatter.format(l_KMH);
-        
-        if (!l_Formatter.contains("."))
-            l_Formatter += ".0";
-        
-        return Float.valueOf(l_Formatter);
+        float distance = MathHelper.sqrt(deltaX * deltaX + deltaZ * deltaZ);
+
+        double kMH = Math.floor((distance / 1000.0f) / (0.05f / 3600.0f));
+
+        String formatter = Formatter.format(kMH);
+
+        if (!formatter.contains("."))
+            formatter += ".0";
+
+        return Float.valueOf(formatter);
+    }
+
+    public enum FacingDirection {
+        North,
+        South,
+        East,
+        West,
     }
 }

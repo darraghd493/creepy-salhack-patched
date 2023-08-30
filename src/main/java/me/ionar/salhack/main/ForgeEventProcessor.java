@@ -1,23 +1,12 @@
 package me.ionar.salhack.main;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
-
 import me.ionar.salhack.SalHackMod;
 import me.ionar.salhack.events.client.EventClientTick;
 import me.ionar.salhack.events.render.EventRenderGetFOVModifier;
 import me.ionar.salhack.events.render.RenderEvent;
 import me.ionar.salhack.managers.ModuleManager;
-import me.ionar.salhack.util.entity.EntityUtil;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.client.event.ClientChatReceivedEvent;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
-import net.minecraftforge.client.event.InputUpdateEvent;
-import net.minecraftforge.client.event.PlayerSPPushOutOfBlocksEvent;
-import net.minecraftforge.client.event.RenderBlockOverlayEvent;
-import net.minecraftforge.client.event.RenderPlayerEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
@@ -29,17 +18,17 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
 
-public class ForgeEventProcessor
-{
+public class ForgeEventProcessor {
     /// @TODO: All of these should be removed and replaced by mixins.
 
     @SubscribeEvent
-    public void onRender(RenderWorldLastEvent event)
-    { 
+    public void onRender(RenderWorldLastEvent event) {
         if (event.isCanceled())
             return;
-        
+
         GlStateManager.disableTexture2D();
         GlStateManager.enableBlend();
         GlStateManager.disableAlpha();
@@ -58,10 +47,9 @@ public class ForgeEventProcessor
         GlStateManager.enableDepth();
         GlStateManager.enableCull();
     }
-    
+
     @SubscribeEvent
-    public void onTick(TickEvent.ClientTickEvent event)
-    {
+    public void onTick(TickEvent.ClientTickEvent event) {
         if (Wrapper.GetMC().player == null)
             return;
 
@@ -69,8 +57,7 @@ public class ForgeEventProcessor
     }
 
     @SubscribeEvent
-    public void onEntitySpawn(EntityJoinWorldEvent event)
-    {
+    public void onEntitySpawn(EntityJoinWorldEvent event) {
         if (event.isCanceled())
             return;
 
@@ -78,110 +65,92 @@ public class ForgeEventProcessor
     }
 
     @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
-    public void onKeyInput(InputEvent.KeyInputEvent event)
-    {
+    public void onKeyInput(InputEvent.KeyInputEvent event) {
         if (Keyboard.getEventKeyState())
             ModuleManager.Get().OnKeyPress(Keyboard.getKeyName(Keyboard.getEventKey()));
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onPlayerDrawn(RenderPlayerEvent.Pre event)
-    {
+    public void onPlayerDrawn(RenderPlayerEvent.Pre event) {
         SalHackMod.EVENT_BUS.post(event);
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onPlayerDrawn(RenderPlayerEvent.Post event)
-    {
+    public void onPlayerDrawn(RenderPlayerEvent.Post event) {
         SalHackMod.EVENT_BUS.post(event);
     }
 
     @SubscribeEvent
-    public void onChunkLoaded(ChunkEvent.Load event)
-    {
+    public void onChunkLoaded(ChunkEvent.Load event) {
         SalHackMod.EVENT_BUS.post(event);
     }
 
     @SubscribeEvent
-    public void onEventMouse(InputEvent.MouseInputEvent event)
-    {
+    public void onEventMouse(InputEvent.MouseInputEvent event) {
         SalHackMod.EVENT_BUS.post(event);
     }
 
     @SubscribeEvent
-    public void onChunkUnLoaded(ChunkEvent.Unload event)
-    {
+    public void onChunkUnLoaded(ChunkEvent.Unload event) {
         SalHackMod.EVENT_BUS.post(event);
     }
 
     @SubscribeEvent
-    public void onInputUpdate(InputUpdateEvent event)
-    {
+    public void onInputUpdate(InputUpdateEvent event) {
         SalHackMod.EVENT_BUS.post(event);
     }
 
     @SubscribeEvent
-    public void onLivingEntityUseItemEventTick(LivingEntityUseItemEvent.Start entityUseItemEvent)
-    {
+    public void onLivingEntityUseItemEventTick(LivingEntityUseItemEvent.Start entityUseItemEvent) {
         SalHackMod.EVENT_BUS.post(entityUseItemEvent);
     }
 
     @SubscribeEvent
-    public void onLivingDamageEvent(LivingDamageEvent event)
-    {
+    public void onLivingDamageEvent(LivingDamageEvent event) {
         SalHackMod.EVENT_BUS.post(event);
     }
 
     @SubscribeEvent
-    public void onEntityJoinWorldEvent(EntityJoinWorldEvent entityJoinWorldEvent)
-    {
+    public void onEntityJoinWorldEvent(EntityJoinWorldEvent entityJoinWorldEvent) {
         SalHackMod.EVENT_BUS.post(entityJoinWorldEvent);
     }
 
     @SubscribeEvent
-    public void onPlayerPush(PlayerSPPushOutOfBlocksEvent event)
-    {
+    public void onPlayerPush(PlayerSPPushOutOfBlocksEvent event) {
         SalHackMod.EVENT_BUS.post(event);
     }
 
     @SubscribeEvent
-    public void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event)
-    {
+    public void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
         SalHackMod.EVENT_BUS.post(event);
     }
 
     @SubscribeEvent
-    public void onAttackEntity(AttackEntityEvent entityEvent)
-    {
+    public void onAttackEntity(AttackEntityEvent entityEvent) {
         SalHackMod.EVENT_BUS.post(entityEvent);
     }
 
     @SubscribeEvent
-    public void onRenderBlockOverlay(RenderBlockOverlayEvent event)
-    {
+    public void onRenderBlockOverlay(RenderBlockOverlayEvent event) {
         SalHackMod.EVENT_BUS.post(event);
     }
 
     @SubscribeEvent
-    public void onClientChat(ClientChatReceivedEvent event)
-    {
+    public void onClientChat(ClientChatReceivedEvent event) {
         SalHackMod.EVENT_BUS.post(event);
     }
 
     @SubscribeEvent
-    public void getFOVModifier(EntityViewRenderEvent.FOVModifier p_Event)
-    {
-        EventRenderGetFOVModifier l_Event = new EventRenderGetFOVModifier((float) p_Event.getRenderPartialTicks(), true);
-        SalHackMod.EVENT_BUS.post(l_Event);
-        if (l_Event.isCancelled())
-        {
-            p_Event.setFOV(l_Event.GetFOV());
+    public void getFOVModifier(EntityViewRenderEvent.FOVModifier event) {
+        EventRenderGetFOVModifier eventRenderGetFOVModifier = new EventRenderGetFOVModifier((float) event.getRenderPartialTicks(), true);
+        SalHackMod.EVENT_BUS.post(eventRenderGetFOVModifier);
+        if (eventRenderGetFOVModifier.isCancelled()) {
+            event.setFOV(eventRenderGetFOVModifier.GetFOV());
         }
     }
-    
+
     @SubscribeEvent
-    public void OnWorldChange(WorldEvent p_Event)
-    {
-        SalHackMod.EVENT_BUS.post(p_Event);
+    public void OnWorldChange(WorldEvent event) {
+        SalHackMod.EVENT_BUS.post(event);
     }
 }

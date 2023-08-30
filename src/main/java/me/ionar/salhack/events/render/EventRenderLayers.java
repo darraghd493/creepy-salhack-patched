@@ -4,39 +4,33 @@ import me.zero.alpine.fork.event.type.Cancellable;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.EntityLivingBase;
 
-public class EventRenderLayers extends Cancellable
-{
+public class EventRenderLayers extends Cancellable {
     private final EntityLivingBase entityLivingBase;
 
     private final LayerRenderer layerRenderer;
     private float HeadPitch;
 
-    public EventRenderLayers(EntityLivingBase entityLivingBase, LayerRenderer layerRenderer, float headPitch)
-    {
+    public EventRenderLayers(EntityLivingBase entityLivingBase, LayerRenderer layerRenderer, float headPitch) {
 
         this.entityLivingBase = entityLivingBase;
         this.layerRenderer = layerRenderer;
         HeadPitch = headPitch;
     }
 
-    public EntityLivingBase getEntityLivingBase()
-    {
+    public EntityLivingBase getEntityLivingBase() {
 
         return entityLivingBase;
     }
 
-    public LayerRenderer getLayerRenderer()
-    {
+    public LayerRenderer getLayerRenderer() {
         return layerRenderer;
     }
-    
-    public float GetHeadPitch()
-    {
+
+    public float GetHeadPitch() {
         return HeadPitch;
     }
-    
-    public void SetHeadPitch(float p_Pitch)
-    {
-        HeadPitch = p_Pitch;
+
+    public void SetHeadPitch(float pitch) {
+        HeadPitch = pitch;
     }
 }

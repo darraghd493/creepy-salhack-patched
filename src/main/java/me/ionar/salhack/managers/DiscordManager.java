@@ -13,12 +13,16 @@ import java.util.concurrent.TimeUnit;
 
 public class DiscordManager {
 
-    private DiscordRPCModule _rpcModule = null;
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final DiscordRPC lib = DiscordRPC.INSTANCE;
     private final long startTime = System.currentTimeMillis() / 1000L; // epoch second
+    private DiscordRPCModule _rpcModule = null;
     private volatile ScheduledFuture<?> task;
     private boolean enabled;
+
+    public static DiscordManager Get() {
+        return SalHack.GetDiscordManager();
+    }
 
     public void enable() {
         if (task != null) {
@@ -58,10 +62,6 @@ public class DiscordManager {
 
     public boolean isEnabled() {
         return enabled;
-    }
-
-    public static DiscordManager Get() {
-        return SalHack.GetDiscordManager();
     }
 
 }

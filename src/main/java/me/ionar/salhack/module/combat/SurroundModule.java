@@ -7,8 +7,8 @@ import me.ionar.salhack.module.Module;
 import me.ionar.salhack.module.Value;
 import me.ionar.salhack.util.BlockInteractionHelper;
 import me.ionar.salhack.util.BlockInteractionHelper.ValidResult;
-import me.ionar.salhack.util.entity.PlayerUtil;
 import me.ionar.salhack.util.MathUtil;
+import me.ionar.salhack.util.entity.PlayerUtil;
 import me.zero.alpine.fork.listener.EventHandler;
 import me.zero.alpine.fork.listener.Listener;
 import net.minecraft.block.Block;
@@ -19,140 +19,69 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketPlayer;
-import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-public class SurroundModule extends Module
-{
+public class SurroundModule extends Module {
     public final Value<Boolean> disable = new Value<Boolean>("Toggles", new String[]
-    { "Toggles", "Disables" }, "Will toggle off after a place", false);
+            {"Toggles", "Disables"}, "Will toggle off after a place", false);
     public final Value<Boolean> ToggleOffGround = new Value<Boolean>("ToggleOffGround", new String[]
-    { "Toggles", "Disables" }, "Will toggle off after a place", false);
+            {"Toggles", "Disables"}, "Will toggle off after a place", false);
     public final Value<CenterModes> CenterMode = new Value<CenterModes>("Center", new String[]
-    { "Center" }, "Moves you to center of block", CenterModes.NCP);
-    
+            {"Center"}, "Moves you to center of block", CenterModes.NCP);
+
     public final Value<Boolean> rotate = new Value<Boolean>("Rotate", new String[]
-    { "rotate" }, "Rotate", true);
-    public final Value<Integer> BlocksPerTick = new Value<Integer>("BlocksPerTick", new String[] {"BPT"}, "Blocks per tick", 1, 1, 10, 1);
+            {"rotate"}, "Rotate", true);
+    public final Value<Integer> BlocksPerTick = new Value<Integer>("BlocksPerTick", new String[]{"BPT"}, "Blocks per tick", 1, 1, 10, 1);
     public final Value<Boolean> ActivateOnlyOnShift = new Value<Boolean>("ActivateOnlyOnShift", new String[]
-    { "AoOS" }, "Activates only when shift is pressed.", false);
-    
-    public enum CenterModes
-    {
-        Teleport,
-        NCP,
-        None,
-    }
-
-    public SurroundModule()
-    {
-        super("Surround", new String[]
-        { "NoCrystal" }, "Automatically surrounds you with obsidian in the four cardinal direrctions", "NONE", 0x5324DB, ModuleType.COMBAT);
-    }
-    
+            {"AoOS"}, "Activates only when shift is pressed.", false);
     private Vec3d Center = Vec3d.ZERO;
-    
-    @Override
-    public String getMetaData()
-    {
-        return CenterMode.getValue().toString();
-    }
-
-    @Override
-    public void onEnable()
-    {
-        super.onEnable();
-        
-        if (mc.player == null)
-        {
-            toggle();
-            return;
-        }
-        
-        if (ActivateOnlyOnShift.getValue())
-            return;
-
-        Center = GetCenter(mc.player.posX, mc.player.posY, mc.player.posZ);
-        
-        if (CenterMode.getValue() != CenterModes.None)
-        {
-            mc.player.motionX = 0;
-            mc.player.motionZ = 0;
-        }
-        
-        if (CenterMode.getValue() == CenterModes.Teleport)
-        {
-            mc.player.connection.sendPacket(new CPacketPlayer.Position(Center.x, Center.y, Center.z, true));
-            mc.player.setPosition(Center.x, Center.y, Center.z);
-        }
-    }
-
-    @Override
-    public void toggleNoSave()
-    {
-        
-    }
-
     @EventHandler
-    private Listener<EventPlayerMotionUpdate> OnPlayerUpdate = new Listener<>(p_Event ->
+    private final Listener<EventPlayerMotionUpdate> OnPlayerUpdate = new Listener<>(event ->
     {
-        if (p_Event.getEra() != Era.PRE)
+        if (event.getEra() != Era.PRE)
             return;
-        
-        if (ActivateOnlyOnShift.getValue())
-        {
-            if (!mc.gameSettings.keyBindSneak.isKeyDown())
-            {
+
+        if (ActivateOnlyOnShift.getValue()) {
+            if (!mc.gameSettings.keyBindSneak.isKeyDown()) {
                 Center = Vec3d.ZERO;
                 return;
             }
-            
-            if (Center == Vec3d.ZERO)
-            {
+
+            if (Center == Vec3d.ZERO) {
                 Center = GetCenter(mc.player.posX, mc.player.posY, mc.player.posZ);
-                
-                if (CenterMode.getValue() != CenterModes.None)
-                {
+
+                if (CenterMode.getValue() != CenterModes.None) {
                     mc.player.motionX = 0;
                     mc.player.motionZ = 0;
                 }
-                
-                if (CenterMode.getValue() == CenterModes.Teleport)
-                {
+
+                if (CenterMode.getValue() == CenterModes.Teleport) {
                     mc.player.connection.sendPacket(new CPacketPlayer.Position(Center.x, Center.y, Center.z, true));
                     mc.player.setPosition(Center.x, Center.y, Center.z);
                 }
             }
         }
-        
+
         /// NCP Centering
-        if (Center != Vec3d.ZERO && CenterMode.getValue() == CenterModes.NCP)
-        {
-            double l_XDiff = Math.abs(Center.x - mc.player.posX);
-            double l_ZDiff = Math.abs(Center.z - mc.player.posZ);
-            
-            if (l_XDiff <= 0.1 && l_ZDiff <= 0.1)
-            {
+        if (Center != Vec3d.ZERO && CenterMode.getValue() == CenterModes.NCP) {
+            double xDiff = Math.abs(Center.x - mc.player.posX);
+            double zDiff = Math.abs(Center.z - mc.player.posZ);
+
+            if (xDiff <= 0.1 && zDiff <= 0.1) {
                 Center = Vec3d.ZERO;
-            }
-            else
-            {
-                double l_MotionX = Center.x-mc.player.posX;
-                double l_MotionZ = Center.z-mc.player.posZ;
-                
-                mc.player.motionX = l_MotionX/2;
-                mc.player.motionZ = l_MotionZ/2;
+            } else {
+                double motionX = Center.x - mc.player.posX;
+                double motionZ = Center.z - mc.player.posZ;
+
+                mc.player.motionX = motionX / 2;
+                mc.player.motionZ = motionZ / 2;
             }
         }
-        
-        if (!mc.player.onGround && !mc.player.prevOnGround && !ActivateOnlyOnShift.getValue())
-        {
-            if (ToggleOffGround.getValue())
-            {
+
+        if (!mc.player.onGround && !mc.player.prevOnGround && !ActivateOnlyOnShift.getValue()) {
+            if (ToggleOffGround.getValue()) {
                 toggle();
                 SalHack.SendMessage("[Surround]: You are off ground! toggling!");
                 return;
@@ -167,160 +96,169 @@ public class SurroundModule extends Module
         final BlockPos south = interpPos.south();
         final BlockPos east = interpPos.east();
         final BlockPos west = interpPos.west();
-        
-        BlockPos[] l_Array = {north, south, east, west};
-        
+
+        BlockPos[] array = {north, south, east, west};
+
         /// We don't need to do anything if we are not surrounded
         if (IsSurrounded(mc.player))
             return;
-        
+
         int lastSlot;
         final int slot = findStackHotbar(Blocks.OBSIDIAN);
-        if (hasStack(Blocks.OBSIDIAN) || slot != -1)
-        {
-            if ((mc.player.onGround))
-            {
+        if (hasStack(Blocks.OBSIDIAN) || slot != -1) {
+            if ((mc.player.onGround)) {
                 lastSlot = mc.player.inventory.currentItem;
                 mc.player.inventory.currentItem = slot;
                 mc.playerController.updateController();
 
-                int l_BlocksPerTick = BlocksPerTick.getValue();
+                int blocksPerTick = BlocksPerTick.getValue();
 
-                for (BlockPos l_Pos : l_Array)
-                {
-                    ValidResult l_Result = BlockInteractionHelper.valid(l_Pos);
-                    
-                    if (l_Result == ValidResult.AlreadyBlockThere && !mc.world.getBlockState(l_Pos).getMaterial().isReplaceable())
+                for (BlockPos pos1 : array) {
+                    ValidResult result = BlockInteractionHelper.valid(pos1);
+
+                    if (result == ValidResult.AlreadyBlockThere && !mc.world.getBlockState(pos1).getMaterial().isReplaceable())
                         continue;
-                    
-                    if (l_Result == ValidResult.NoNeighbors)
-                    {
-                        final BlockPos[] l_Test = {  l_Pos.down(), l_Pos.north(), l_Pos.south(), l_Pos.east(), l_Pos.west(), l_Pos.up(), };
 
-                        for (BlockPos l_Pos2 : l_Test)
-                        {
-                            ValidResult l_Result2 = BlockInteractionHelper.valid(l_Pos2);
+                    if (result == ValidResult.NoNeighbors) {
+                        final BlockPos[] test = {pos1.down(), pos1.north(), pos1.south(), pos1.east(), pos1.west(), pos1.up(),};
 
-                            if (l_Result2 == ValidResult.NoNeighbors || l_Result2 == ValidResult.NoEntityCollision)
+                        for (BlockPos pos2 : test) {
+                            ValidResult result2 = BlockInteractionHelper.valid(pos2);
+
+                            if (result2 == ValidResult.NoNeighbors || result2 == ValidResult.NoEntityCollision)
                                 continue;
-                            
-                            BlockInteractionHelper.place (l_Pos2, 5.0f, false, false);
-                            p_Event.cancel();
-                            float[] rotations = BlockInteractionHelper.getLegitRotations(new Vec3d(l_Pos2.getX(), l_Pos2.getY(), l_Pos2.getZ()));
+
+                            BlockInteractionHelper.place(pos2, 5.0f, false, false);
+                            event.cancel();
+                            float[] rotations = BlockInteractionHelper.getLegitRotations(new Vec3d(pos2.getX(), pos2.getY(), pos2.getZ()));
                             ProcessBlizzFacing(rotations[0], rotations[1]);
                             break;
                         }
-                        
+
                         continue;
                     }
-                    
-                    BlockInteractionHelper.place (l_Pos, 5.0f, false, false);
 
-                    p_Event.cancel();
+                    BlockInteractionHelper.place(pos1, 5.0f, false, false);
 
-                    float[] rotations = BlockInteractionHelper.getLegitRotations(new Vec3d(l_Pos.getX(), l_Pos.getY(), l_Pos.getZ()));
+                    event.cancel();
+
+                    float[] rotations = BlockInteractionHelper.getLegitRotations(new Vec3d(pos1.getX(), pos1.getY(), pos1.getZ()));
                     ProcessBlizzFacing(rotations[0], rotations[1]);
-                    if (--l_BlocksPerTick <= 0)
+                    if (--blocksPerTick <= 0)
                         break;
                 }
 
-                if (!slotEqualsBlock(lastSlot, Blocks.OBSIDIAN))
-                {
+                if (!slotEqualsBlock(lastSlot, Blocks.OBSIDIAN)) {
                     mc.player.inventory.currentItem = lastSlot;
                 }
                 mc.playerController.updateController();
 
-                if (this.disable.getValue())
-                {
+                if (this.disable.getValue()) {
                     this.toggle();
                 }
             }
         }
     });
-    
-    private void ProcessBlizzFacing(float p_Yaw, float p_Pitch)
-    {
-        boolean l_IsSprinting = mc.player.isSprinting();
 
-        if (l_IsSprinting != mc.player.serverSprintState)
-        {
-            if (l_IsSprinting)
-            {
+    public SurroundModule() {
+        super("Surround", new String[]
+                {"NoCrystal"}, "Automatically surrounds you with obsidian in the four cardinal direrctions", "NONE", 0x5324DB, ModuleType.COMBAT);
+    }
+
+    @Override
+    public String getMetaData() {
+        return CenterMode.getValue().toString();
+    }
+
+    @Override
+    public void onEnable() {
+        super.onEnable();
+
+        if (mc.player == null) {
+            toggle();
+            return;
+        }
+
+        if (ActivateOnlyOnShift.getValue())
+            return;
+
+        Center = GetCenter(mc.player.posX, mc.player.posY, mc.player.posZ);
+
+        if (CenterMode.getValue() != CenterModes.None) {
+            mc.player.motionX = 0;
+            mc.player.motionZ = 0;
+        }
+
+        if (CenterMode.getValue() == CenterModes.Teleport) {
+            mc.player.connection.sendPacket(new CPacketPlayer.Position(Center.x, Center.y, Center.z, true));
+            mc.player.setPosition(Center.x, Center.y, Center.z);
+        }
+    }
+
+    @Override
+    public void toggleNoSave() {
+
+    }
+
+    private void ProcessBlizzFacing(float yaw, float pitch) {
+        boolean isSprinting = mc.player.isSprinting();
+
+        if (isSprinting != mc.player.serverSprintState) {
+            if (isSprinting) {
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SPRINTING));
-            }
-            else
-            {
+            } else {
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
             }
 
-            mc.player.serverSprintState = l_IsSprinting;
+            mc.player.serverSprintState = isSprinting;
         }
 
-        boolean l_IsSneaking = mc.player.isSneaking();
+        boolean isSneaking = mc.player.isSneaking();
 
-        if (l_IsSneaking != mc.player.serverSneakState)
-        {
-            if (l_IsSneaking)
-            {
+        if (isSneaking != mc.player.serverSneakState) {
+            if (isSneaking) {
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
-            }
-            else
-            {
+            } else {
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SNEAKING));
             }
 
-            mc.player.serverSneakState = l_IsSneaking;
+            mc.player.serverSneakState = isSneaking;
         }
 
-        if (PlayerUtil.isCurrentViewEntity())
-        {
-            float l_Pitch = p_Pitch;
-            float l_Yaw = p_Yaw;
-            
+        if (PlayerUtil.isCurrentViewEntity()) {
             AxisAlignedBB axisalignedbb = mc.player.getEntityBoundingBox();
-            double l_PosXDifference = mc.player.posX - mc.player.lastReportedPosX;
-            double l_PosYDifference = axisalignedbb.minY - mc.player.lastReportedPosY;
-            double l_PosZDifference = mc.player.posZ - mc.player.lastReportedPosZ;
-            double l_YawDifference = (double)(l_Yaw - mc.player.lastReportedYaw);
-            double l_RotationDifference = (double)(l_Pitch - mc.player.lastReportedPitch);
+            double posXDifference = mc.player.posX - mc.player.lastReportedPosX;
+            double posYDifference = axisalignedbb.minY - mc.player.lastReportedPosY;
+            double posZDifference = mc.player.posZ - mc.player.lastReportedPosZ;
+            double yawDifference = yaw - mc.player.lastReportedYaw;
+            double rotationDifference = pitch - mc.player.lastReportedPitch;
             ++mc.player.positionUpdateTicks;
-            boolean l_MovedXYZ = l_PosXDifference * l_PosXDifference + l_PosYDifference * l_PosYDifference + l_PosZDifference * l_PosZDifference > 9.0E-4D || mc.player.positionUpdateTicks >= 20;
-            boolean l_MovedRotation = l_YawDifference != 0.0D || l_RotationDifference != 0.0D;
+            boolean movedXYZ = posXDifference * posXDifference + posYDifference * posYDifference + posZDifference * posZDifference > 9.0E-4D || mc.player.positionUpdateTicks >= 20;
+            boolean movedRotation = yawDifference != 0.0D || rotationDifference != 0.0D;
 
-            if (mc.player.isRiding())
-            {
-                mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.motionX, -999.0D, mc.player.motionZ, l_Yaw, l_Pitch, mc.player.onGround));
-                l_MovedXYZ = false;
-            }
-            else if (l_MovedXYZ && l_MovedRotation)
-            {
-                mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX, axisalignedbb.minY, mc.player.posZ, l_Yaw, l_Pitch, mc.player.onGround));
-            }
-            else if (l_MovedXYZ)
-            {
+            if (mc.player.isRiding()) {
+                mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.motionX, -999.0D, mc.player.motionZ, yaw, pitch, mc.player.onGround));
+                movedXYZ = false;
+            } else if (movedXYZ && movedRotation) {
+                mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX, axisalignedbb.minY, mc.player.posZ, yaw, pitch, mc.player.onGround));
+            } else if (movedXYZ) {
                 mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, axisalignedbb.minY, mc.player.posZ, mc.player.onGround));
-            }
-            else if (l_MovedRotation)
-            {
-                mc.player.connection.sendPacket(new CPacketPlayer.Rotation(l_Yaw, l_Pitch, mc.player.onGround));
-            }
-            else if (mc.player.prevOnGround != mc.player.onGround)
-            {
+            } else if (movedRotation) {
+                mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, pitch, mc.player.onGround));
+            } else if (mc.player.prevOnGround != mc.player.onGround) {
                 mc.player.connection.sendPacket(new CPacketPlayer(mc.player.onGround));
             }
 
-            if (l_MovedXYZ)
-            {
+            if (movedXYZ) {
                 mc.player.lastReportedPosX = mc.player.posX;
                 mc.player.lastReportedPosY = axisalignedbb.minY;
                 mc.player.lastReportedPosZ = mc.player.posZ;
                 mc.player.positionUpdateTicks = 0;
             }
 
-            if (l_MovedRotation)
-            {
-                mc.player.lastReportedYaw = l_Yaw;
-                mc.player.lastReportedPitch = l_Pitch;
+            if (movedRotation) {
+                mc.player.lastReportedYaw = yaw;
+                mc.player.lastReportedPitch = pitch;
             }
 
             mc.player.prevOnGround = mc.player.onGround;
@@ -328,44 +266,37 @@ public class SurroundModule extends Module
         }
     }
 
-    public boolean IsSurrounded(EntityPlayer p_Who)
-    {
-        final Vec3d l_PlayerPos = MathUtil.interpolateEntity(mc.player, mc.getRenderPartialTicks());
+    public boolean IsSurrounded(EntityPlayer who) {
+        final Vec3d playerPos = MathUtil.interpolateEntity(mc.player, mc.getRenderPartialTicks());
 
-        final BlockPos l_InterpPos = new BlockPos(l_PlayerPos.x, l_PlayerPos.y, l_PlayerPos.z);
+        final BlockPos interpPos = new BlockPos(playerPos.x, playerPos.y, playerPos.z);
 
-        final BlockPos l_North = l_InterpPos.north();
-        final BlockPos l_South = l_InterpPos.south();
-        final BlockPos l_East = l_InterpPos.east();
-        final BlockPos l_West = l_InterpPos.west();
-        
-        BlockPos[] l_Array = {l_North, l_South, l_East, l_West};
-        
-        for (BlockPos l_Pos : l_Array)
-        {
-            if (BlockInteractionHelper.valid(l_Pos) != ValidResult.AlreadyBlockThere)
-            {
+        final BlockPos north = interpPos.north();
+        final BlockPos south = interpPos.south();
+        final BlockPos east = interpPos.east();
+        final BlockPos west = interpPos.west();
+
+        BlockPos[] array = {north, south, east, west};
+
+        for (BlockPos pos : array) {
+            if (BlockInteractionHelper.valid(pos) != ValidResult.AlreadyBlockThere) {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
-    public boolean hasStack(Block type)
-    {
-        if (mc.player.inventory.getCurrentItem().getItem() instanceof ItemBlock)
-        {
+
+    public boolean hasStack(Block type) {
+        if (mc.player.inventory.getCurrentItem().getItem() instanceof ItemBlock) {
             final ItemBlock block = (ItemBlock) mc.player.inventory.getCurrentItem().getItem();
             return block.getBlock() == type;
         }
         return false;
     }
 
-    private boolean slotEqualsBlock(int slot, Block type)
-    {
-        if (mc.player.inventory.getStackInSlot(slot).getItem() instanceof ItemBlock)
-        {
+    private boolean slotEqualsBlock(int slot, Block type) {
+        if (mc.player.inventory.getStackInSlot(slot).getItem() instanceof ItemBlock) {
             final ItemBlock block = (ItemBlock) mc.player.inventory.getStackInSlot(slot).getItem();
             return block.getBlock() == type;
         }
@@ -373,17 +304,13 @@ public class SurroundModule extends Module
         return false;
     }
 
-    private int findStackHotbar(Block type)
-    {
-        for (int i = 0; i < 9; i++)
-        {
+    private int findStackHotbar(Block type) {
+        for (int i = 0; i < 9; i++) {
             final ItemStack stack = Minecraft.getMinecraft().player.inventory.getStackInSlot(i);
-            if (stack.getItem() instanceof ItemBlock)
-            {
+            if (stack.getItem() instanceof ItemBlock) {
                 final ItemBlock block = (ItemBlock) stack.getItem();
 
-                if (block.getBlock() == type)
-                {
+                if (block.getBlock() == type) {
                     return i;
                 }
             }
@@ -391,17 +318,21 @@ public class SurroundModule extends Module
         return -1;
     }
 
-    public Vec3d GetCenter(double posX, double posY, double posZ)
-    {
+    public Vec3d GetCenter(double posX, double posY, double posZ) {
         double x = Math.floor(posX) + 0.5D;
         double y = Math.floor(posY);
-        double z = Math.floor(posZ) + 0.5D ;
-        
+        double z = Math.floor(posZ) + 0.5D;
+
         return new Vec3d(x, y, z);
     }
 
-    public boolean HasObsidian()
-    {
+    public boolean HasObsidian() {
         return findStackHotbar(Blocks.OBSIDIAN) != -1;
+    }
+
+    public enum CenterModes {
+        Teleport,
+        NCP,
+        None,
     }
 }

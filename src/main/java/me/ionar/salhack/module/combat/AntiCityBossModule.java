@@ -1,11 +1,9 @@
 package me.ionar.salhack.module.combat;
 
-import java.util.ArrayList;
-
 import me.ionar.salhack.events.MinecraftEvent.Era;
 import me.ionar.salhack.events.player.EventPlayerMotionUpdate;
-import me.ionar.salhack.module.Value;
 import me.ionar.salhack.module.Module;
+import me.ionar.salhack.module.Value;
 import me.ionar.salhack.util.BlockInteractionHelper;
 import me.ionar.salhack.util.BlockInteractionHelper.ValidResult;
 import me.ionar.salhack.util.entity.PlayerUtil;
@@ -19,125 +17,114 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-public class AntiCityBossModule extends Module
-{
-    public final Value<Boolean> TrapCheck = new Value<Boolean>("TrapCheck", new String[]
-    { "HC" }, "Only functions if you're trapped", false);
+import java.util.ArrayList;
 
-    public AntiCityBossModule()
-    {
-        super("AntiCityBoss", new String[]
-        { "AntiTrap" }, "Automatically places 4 obsidian in the direction your facing to prevent getting crystaled",
-                "NONE", -1, ModuleType.COMBAT);
-    }
-    
-    
-    @Override
-    public void toggleNoSave()
-    {
-        
-    }
-    
+public class AntiCityBossModule extends Module {
+    public final Value<Boolean> TrapCheck = new Value<Boolean>("TrapCheck", new String[]
+            {"HC"}, "Only functions if you're trapped", false);
     @EventHandler
-    private Listener<EventPlayerMotionUpdate> OnPlayerUpdate = new Listener<>(p_Event ->
+    private final Listener<EventPlayerMotionUpdate> OnPlayerUpdate = new Listener<>(event ->
     {
-        if (p_Event.getEra() != Era.PRE)
+        if (event.getEra() != Era.PRE)
             return;
-        
+
         if (TrapCheck.getValue() && !PlayerUtil.IsPlayerTrapped())
             return;
-        
+
         final int slot = findStackHotbar(Blocks.OBSIDIAN);
-        
+
         /// Make sure we have obby.
         if (slot == -1)
             return;
-        
-        BlockPos l_CenterPos = PlayerUtil.GetLocalPlayerPosFloored();
+
+        BlockPos centerPos = PlayerUtil.GetLocalPlayerPosFloored();
         ArrayList<BlockPos> BlocksToFill = new ArrayList<BlockPos>();
-        
-        switch (PlayerUtil.GetFacing())
-        {
+
+        switch (PlayerUtil.GetFacing()) {
             case East:
-                BlocksToFill.add(l_CenterPos.east().east());
-                BlocksToFill.add(l_CenterPos.east().east().up());
-                BlocksToFill.add(l_CenterPos.east().east().east());
-                BlocksToFill.add(l_CenterPos.east().east().east().up());
+                BlocksToFill.add(centerPos.east().east());
+                BlocksToFill.add(centerPos.east().east().up());
+                BlocksToFill.add(centerPos.east().east().east());
+                BlocksToFill.add(centerPos.east().east().east().up());
                 break;
             case North:
-                BlocksToFill.add(l_CenterPos.north().north());
-                BlocksToFill.add(l_CenterPos.north().north().up());
-                BlocksToFill.add(l_CenterPos.north().north().north());
-                BlocksToFill.add(l_CenterPos.north().north().north().up());
+                BlocksToFill.add(centerPos.north().north());
+                BlocksToFill.add(centerPos.north().north().up());
+                BlocksToFill.add(centerPos.north().north().north());
+                BlocksToFill.add(centerPos.north().north().north().up());
                 break;
             case South:
-                BlocksToFill.add(l_CenterPos.south().south());
-                BlocksToFill.add(l_CenterPos.south().south().up());
-                BlocksToFill.add(l_CenterPos.south().south().south());
-                BlocksToFill.add(l_CenterPos.south().south().south().up());
+                BlocksToFill.add(centerPos.south().south());
+                BlocksToFill.add(centerPos.south().south().up());
+                BlocksToFill.add(centerPos.south().south().south());
+                BlocksToFill.add(centerPos.south().south().south().up());
                 break;
             case West:
-                BlocksToFill.add(l_CenterPos.west().west());
-                BlocksToFill.add(l_CenterPos.west().west().up());
-                BlocksToFill.add(l_CenterPos.west().west().west());
-                BlocksToFill.add(l_CenterPos.west().west().west().up());
+                BlocksToFill.add(centerPos.west().west());
+                BlocksToFill.add(centerPos.west().west().up());
+                BlocksToFill.add(centerPos.west().west().west());
+                BlocksToFill.add(centerPos.west().west().west().up());
                 break;
             default:
                 break;
         }
-        
-        BlockPos l_PosToFill = null;
-        
-        for (BlockPos l_Pos : BlocksToFill)
-        {
-            ValidResult l_Result = BlockInteractionHelper.valid(l_Pos);
-            
-            if (l_Result != ValidResult.Ok)
+
+        BlockPos posToFill = null;
+
+        for (BlockPos pos : BlocksToFill) {
+            ValidResult result = BlockInteractionHelper.valid(pos);
+
+            if (result != ValidResult.Ok)
                 continue;
-            
-            l_PosToFill = l_Pos;
+
+            posToFill = pos;
             break;
         }
-        
-        if (l_PosToFill != null)
-        {
+
+        if (posToFill != null) {
             int lastSlot;
             lastSlot = mc.player.inventory.currentItem;
             mc.player.inventory.currentItem = slot;
             mc.playerController.updateController();
-            
-            p_Event.cancel();
+
+            event.cancel();
             float[] rotations = BlockInteractionHelper
-                    .getLegitRotations(new Vec3d(l_PosToFill.getX(), l_PosToFill.getY(), l_PosToFill.getZ()));
+                    .getLegitRotations(new Vec3d(posToFill.getX(), posToFill.getY(), posToFill.getZ()));
             PlayerUtil.PacketFacePitchAndYaw(rotations[1], rotations[0]);
-            BlockInteractionHelper.place(l_PosToFill, 5.0f, false, false);
+            BlockInteractionHelper.place(posToFill, 5.0f, false, false);
             Finish(lastSlot);
         }
     });
-    
-    private void Finish(int p_LastSlot)
-    {
-        if (!slotEqualsBlock(p_LastSlot, Blocks.OBSIDIAN))
-        {
-            mc.player.inventory.currentItem = p_LastSlot;
+
+
+    public AntiCityBossModule() {
+        super("AntiCityBoss", new String[]
+                        {"AntiTrap"}, "Automatically places 4 obsidian in the direction your facing to prevent getting crystaled",
+                "NONE", -1, ModuleType.COMBAT);
+    }
+
+    @Override
+    public void toggleNoSave() {
+
+    }
+
+    private void Finish(int lastSlot) {
+        if (!slotEqualsBlock(lastSlot, Blocks.OBSIDIAN)) {
+            mc.player.inventory.currentItem = lastSlot;
         }
         mc.playerController.updateController();
     }
 
-    public boolean hasStack(Block type)
-    {
-        if (mc.player.inventory.getCurrentItem().getItem() instanceof ItemBlock)
-        {
+    public boolean hasStack(Block type) {
+        if (mc.player.inventory.getCurrentItem().getItem() instanceof ItemBlock) {
             final ItemBlock block = (ItemBlock) mc.player.inventory.getCurrentItem().getItem();
             return block.getBlock() == type;
         }
         return false;
     }
 
-    private boolean slotEqualsBlock(int slot, Block type)
-    {
-        if (mc.player.inventory.getStackInSlot(slot).getItem() instanceof ItemBlock)
-        {
+    private boolean slotEqualsBlock(int slot, Block type) {
+        if (mc.player.inventory.getStackInSlot(slot).getItem() instanceof ItemBlock) {
             final ItemBlock block = (ItemBlock) mc.player.inventory.getStackInSlot(slot).getItem();
             return block.getBlock() == type;
         }
@@ -145,17 +132,13 @@ public class AntiCityBossModule extends Module
         return false;
     }
 
-    private int findStackHotbar(Block type)
-    {
-        for (int i = 0; i < 9; i++)
-        {
+    private int findStackHotbar(Block type) {
+        for (int i = 0; i < 9; i++) {
             final ItemStack stack = Minecraft.getMinecraft().player.inventory.getStackInSlot(i);
-            if (stack.getItem() instanceof ItemBlock)
-            {
+            if (stack.getItem() instanceof ItemBlock) {
                 final ItemBlock block = (ItemBlock) stack.getItem();
 
-                if (block.getBlock() == type)
-                {
+                if (block.getBlock() == type) {
                     return i;
                 }
             }

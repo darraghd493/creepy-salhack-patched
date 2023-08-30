@@ -13,62 +13,56 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
-public class SchematicaMaterialInfoComponent extends HudComponentItem
-{
-    public SchematicaMaterialInfoComponent()
-    {
+public class SchematicaMaterialInfoComponent extends HudComponentItem {
+    private final HudModule hud = (HudModule) ModuleManager.Get().GetMod(HudModule.class);
+    private final SalRainbowUtil Rainbow = new SalRainbowUtil(9);
+    private final int i = 0;
+    public SchematicaMaterialInfoComponent() {
         super("SchematicaMaterialInfo", 300, 300);
     }
 
-    private HudModule l_Hud = (HudModule) ModuleManager.Get().GetMod(HudModule.class);
-    private SalRainbowUtil Rainbow = new SalRainbowUtil(9);
-    private int l_I = 0;
-
     @Override
-    public void render(int p_MouseX, int p_MouseY, float p_PartialTicks)
-    {
-        super.render(p_MouseX, p_MouseY, p_PartialTicks);
-        
+    public void render(int mouseX, int mouseY, float partialTicks) {
+        super.render(mouseX, mouseY, partialTicks);
+
         GL11.glPushMatrix();
-        
-        RenderUtil.drawRect(GetX(), GetY(), GetX()+GetWidth(), GetY()+GetHeight(), 0x75101010);
-        
-        if (SchematicPrinter.INSTANCE.getSchematic() == null)
-        {
-            final String l_String = "No Schematic loaded";
+
+        RenderUtil.drawRect(GetX(), GetY(), GetX() + GetWidth(), GetY() + GetHeight(), 0x75101010);
+
+        if (SchematicPrinter.INSTANCE.getSchematic() == null) {
+            final String string = "No Schematic loaded";
 
             Rainbow.OnRender();
-            RenderUtil.drawStringWithShadow(l_String, GetX(), GetY(), l_Hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1);
-            SetWidth(RenderUtil.getStringWidth(l_String));
-            SetHeight(RenderUtil.getStringHeight(l_String));
+            RenderUtil.drawStringWithShadow(string, GetX(), GetY(), hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1);
+            SetWidth(RenderUtil.getStringWidth(string));
+            SetHeight(RenderUtil.getStringHeight(string));
             GL11.glPopMatrix();
             return;
         }
 
         final List<BlockList.WrappedItemStack> blockList = new BlockList().getList(mc.player, SchematicPrinter.INSTANCE.getSchematic(), mc.world);
-        
-        ItemStackSortType.fromString("SIZE_DESC").sort(blockList);
-        
-        float l_Height = 0;
-        float l_MaxWidth = 0;
-        
-        for (BlockList.WrappedItemStack l_Stack : blockList)
-        {
-            String l_String = String.format("%s: %s", l_Stack.getItemStackDisplayName(), l_Stack.getFormattedAmount(), l_Stack.getFormattedAmount());
 
-            GuiHelper.drawItemStack(l_Stack.itemStack, (int)GetX(), (int)(GetY()+l_Height));
+        ItemStackSortType.fromString("SIZE_DESC").sort(blockList);
+
+        float height = 0;
+        float maxWidth = 0;
+
+        for (BlockList.WrappedItemStack stack : blockList) {
+            String string = String.format("%s: %s", stack.getItemStackDisplayName(), stack.getFormattedAmount(), stack.getFormattedAmount());
+
+            GuiHelper.drawItemStack(stack.itemStack, (int) GetX(), (int) (GetY() + height));
             Rainbow.OnRender();
-            float l_Width = RenderUtil.drawStringWithShadow(l_String, GetX()+20, GetY()+l_Height+4, l_Hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1)+22;
-            
-            if (l_Width >= l_MaxWidth)
-                l_MaxWidth = l_Width;
-            
-            l_Height += 16;
+            float width = RenderUtil.drawStringWithShadow(string, GetX() + 20, GetY() + height + 4, hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1) + 22;
+
+            if (width >= maxWidth)
+                maxWidth = width;
+
+            height += 16;
         }
-        
-        SetWidth(l_MaxWidth);
-        SetHeight(l_Height);
-        
+
+        SetWidth(maxWidth);
+        SetHeight(height);
+
         GL11.glPopMatrix();
     }
 

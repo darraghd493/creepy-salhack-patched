@@ -1,24 +1,26 @@
 package me.ionar.salhack.managers;
 
+import me.ionar.salhack.command.Command;
+import me.ionar.salhack.command.impl.*;
+import me.ionar.salhack.command.util.ModuleCommandListener;
+import me.ionar.salhack.main.SalHack;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import me.ionar.salhack.command.Command;
-import me.ionar.salhack.command.impl.*;
-import me.ionar.salhack.command.util.ModuleCommandListener;
-import me.ionar.salhack.main.SalHack;
-import me.ionar.salhack.module.Module;
+public class CommandManager {
+    private final ArrayList<Command> Commands = new ArrayList<Command>();
 
-public class CommandManager
-{
-    public CommandManager()
-    {
+    public CommandManager() {
     }
-    
-    public void InitalizeCommands()
-    {
+
+    public static CommandManager Get() {
+        return SalHack.GetCommandManager();
+    }
+
+    public void InitalizeCommands() {
         Commands.add(new FriendCommand());
         Commands.add(new HelpCommand());
         Commands.add(new SoundReloadCommand());
@@ -32,95 +34,75 @@ public class CommandManager
         Commands.add(new PresetsCommand());
         Commands.add(new WaypointCommand());
         Commands.add(new GitHubCommand());
-        
-        ModuleManager.Get().GetModuleList().forEach(p_Mod ->
+
+        ModuleManager.Get().GetModuleList().forEach(mod1 ->
         {
-            ModuleCommandListener l_Listener = new ModuleCommandListener()
-            {
+            ModuleCommandListener listener = new ModuleCommandListener() {
                 @Override
-                public void OnHide()
-                {
-                    p_Mod.setHidden(!p_Mod.isHidden());
+                public void OnHide() {
+                    mod1.setHidden(!mod1.isHidden());
                 }
 
                 @Override
-                public void OnToggle()
-                {
-                    p_Mod.toggle();
+                public void OnToggle() {
+                    mod1.toggle();
                 }
 
                 @Override
-                public void OnRename(String p_NewName)
-                {
-                    p_Mod.setDisplayName(p_NewName);
+                public void OnRename(String newName) {
+                    mod1.setDisplayName(newName);
                 }
             };
-            
-            Commands.add(new ModuleCommand(p_Mod.getDisplayName(), p_Mod.getDesc(), l_Listener, p_Mod.getValueList()));
+
+            Commands.add(new ModuleCommand(mod1.getDisplayName(), mod1.getDesc(), listener, mod1.getValueList()));
         });
 
-        HudManager.Get().Items.forEach(p_Item ->
+        HudManager.Get().Items.forEach(item ->
         {
-            ModuleCommandListener l_Listener = new ModuleCommandListener()
-            {
+            ModuleCommandListener listener = new ModuleCommandListener() {
                 @Override
-                public void OnHide()
-                {
-                    p_Item.SetHidden(!p_Item.IsHidden());
+                public void OnHide() {
+                    item.SetHidden(!item.IsHidden());
                 }
 
                 @Override
-                public void OnToggle()
-                {
-                    p_Item.SetHidden(!p_Item.IsHidden());
+                public void OnToggle() {
+                    item.SetHidden(!item.IsHidden());
                 }
 
                 @Override
-                public void OnRename(String p_NewName)
-                {
-                    p_Item.SetDisplayName(p_NewName, true);
+                public void OnRename(String newName) {
+                    item.SetDisplayName(newName, true);
                 }
             };
-            
-            Commands.add(new ModuleCommand(p_Item.GetDisplayName(), "NYI", l_Listener, p_Item.ValueList));
+
+            Commands.add(new ModuleCommand(item.GetDisplayName(), "NYI", listener, item.ValueList));
         });
-        
+
         /// Sort by alphabet
         Commands.sort(Comparator.comparing(Command::GetName));
     }
-    
-    private ArrayList<Command> Commands = new ArrayList<Command>();
-    
-    public final ArrayList<Command> GetCommands()
-    {
+
+    public final ArrayList<Command> GetCommands() {
         return Commands;
     }
-    
-    public final List<Command> GetCommandsLike(String p_Like)
-    {
+
+    public final List<Command> GetCommandsLike(String like) {
         return Commands.stream()
-                .filter(p_Command -> p_Command.GetName().toLowerCase().startsWith(p_Like.toLowerCase()))
+                .filter(command -> command.GetName().toLowerCase().startsWith(like.toLowerCase()))
                 .collect(Collectors.toList());
     }
-    
-    public static CommandManager Get()
-    {
-        return SalHack.GetCommandManager();
-    }
 
-    public Command GetCommandLike(String p_Like)
-    {
-        for (Command l_Command : Commands)
-        {
-            if (l_Command.GetName().toLowerCase().startsWith(p_Like.toLowerCase()))
-                return l_Command;
+    public Command GetCommandLike(String like) {
+        for (Command command : Commands) {
+            if (command.GetName().toLowerCase().startsWith(like.toLowerCase()))
+                return command;
         }
-        
+
         return null;
     }
 
-    public void Reload()
-    {
+    public void Reload() {
         Commands.clear();
         InitalizeCommands();
     }

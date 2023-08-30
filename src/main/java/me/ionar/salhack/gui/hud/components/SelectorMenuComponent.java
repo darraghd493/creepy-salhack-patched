@@ -2,43 +2,36 @@ package me.ionar.salhack.gui.hud.components;
 
 import me.ionar.salhack.gui.click.component.menus.mods.MenuComponentHUDList;
 import me.ionar.salhack.gui.hud.HudComponentItem;
-import me.ionar.salhack.managers.HudManager;
-import me.ionar.salhack.util.render.RenderUtil;
 
-public class SelectorMenuComponent extends HudComponentItem
-{
-    MenuComponentHUDList l_Component = new MenuComponentHUDList("Selector", 300, 300);
-    
-    public SelectorMenuComponent()
-    {
+public class SelectorMenuComponent extends HudComponentItem {
+    MenuComponentHUDList component = new MenuComponentHUDList("Selector", 300, 300);
+
+    public SelectorMenuComponent() {
         super("Selector", 300, 300);
         SetHidden(false);
         AddFlag(HudComponentItem.OnlyVisibleInHudEditor);
     }
 
     @Override
-    public void render(int p_MouseX, int p_MouseY, float p_PartialTicks)
-    {
-        super.render(p_MouseX, p_MouseY, p_PartialTicks);
-        
-        l_Component.Render(p_MouseX, p_MouseY, true, true, 0);
-        
-        SetWidth(l_Component.GetWidth());
-        SetHeight(l_Component.GetHeight());
-        SetX(l_Component.GetX());
-        SetY(l_Component.GetY());
+    public void render(int mouseX, int mouseY, float partialTicks) {
+        super.render(mouseX, mouseY, partialTicks);
+
+        component.Render(mouseX, mouseY, true, true, 0);
+
+        SetWidth(component.GetWidth());
+        SetHeight(component.GetHeight());
+        SetX(component.GetX());
+        SetY(component.GetY());
     }
 
     @Override
-    public boolean OnMouseClick(int p_MouseX, int p_MouseY, int p_MouseButton)
-    {
-        return l_Component.MouseClicked(p_MouseX, p_MouseY, p_MouseButton, 0);
+    public boolean OnMouseClick(int mouseX, int mouseY, int mouseButton) {
+        return component.MouseClicked(mouseX, mouseY, mouseButton, 0);
     }
 
     @Override
-    public void OnMouseRelease(int p_MouseX, int p_MouseY, int p_State)
-    {
-        super.OnMouseRelease(p_MouseX, p_MouseY, p_State);
-        l_Component.MouseReleased(p_MouseX, p_MouseY, p_State);
+    public void OnMouseRelease(int mouseX, int mouseY, int state) {
+        super.OnMouseRelease(mouseX, mouseY, state);
+        component.MouseReleased(mouseX, mouseY, state);
     }
 }

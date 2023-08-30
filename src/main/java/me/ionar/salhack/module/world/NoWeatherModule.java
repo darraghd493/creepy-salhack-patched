@@ -5,22 +5,20 @@ import me.ionar.salhack.module.Module;
 import me.zero.alpine.fork.listener.EventHandler;
 import me.zero.alpine.fork.listener.Listener;
 
-public final class NoWeatherModule extends Module
-{
-
-    public NoWeatherModule()
-    {
-        super("NoWeather", new String[]
-        { "AntiWeather" }, "Allows you to control the weather client-side", "NONE", -1, ModuleType.WORLD);
-    }
+public final class NoWeatherModule extends Module {
 
     @EventHandler
-    private Listener<EventRenderRainStrength> OnRainStrength = new Listener<>(p_Event ->
+    private final Listener<EventRenderRainStrength> OnRainStrength = new Listener<>(event ->
     {
         if (mc.world == null)
             return;
 
-        p_Event.cancel();
+        event.cancel();
     });
+
+    public NoWeatherModule() {
+        super("NoWeather", new String[]
+                {"AntiWeather"}, "Allows you to control the weather client-side", "NONE", -1, ModuleType.WORLD);
+    }
 
 }

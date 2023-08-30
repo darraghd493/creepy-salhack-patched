@@ -2,15 +2,13 @@ package me.ionar.salhack.util.imgs;
 
 import java.awt.image.BufferedImage;
 
-public class ImageFrame
-{
+public class ImageFrame {
     private final int delay;
     private final BufferedImage image;
     private final String disposal;
     private final int width, height;
 
-    public ImageFrame(BufferedImage image, int delay, String disposal, int width, int height)
-    {
+    public ImageFrame(BufferedImage image, int delay, String disposal, int width, int height) {
         this.image = image;
         this.delay = delay;
         this.disposal = disposal;
@@ -18,8 +16,7 @@ public class ImageFrame
         this.height = height;
     }
 
-    public ImageFrame(BufferedImage image)
-    {
+    public ImageFrame(BufferedImage image) {
         this.image = image;
         this.delay = -1;
         this.disposal = null;
@@ -27,28 +24,23 @@ public class ImageFrame
         this.height = -1;
     }
 
-    public BufferedImage getImage()
-    {
+    public BufferedImage getImage() {
         return image;
     }
 
-    public int getDelay()
-    {
+    public int getDelay() {
         return delay;
     }
 
-    public String getDisposal()
-    {
+    public String getDisposal() {
         return disposal;
     }
 
-    public int getWidth()
-    {
+    public int getWidth() {
         return width;
     }
 
-    public int getHeight()
-    {
+    public int getHeight() {
         return height;
     }
 }

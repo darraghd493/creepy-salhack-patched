@@ -2,28 +2,23 @@ package me.ionar.salhack.events.player;
 
 import me.ionar.salhack.events.MinecraftEvent;
 import me.ionar.salhack.mixin.client.MixinAbstractClientPlayer;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 
-public class EventPlayerGetLocationSkin extends MinecraftEvent
-{
-    private ResourceLocation m_Location = null;
+public class EventPlayerGetLocationSkin extends MinecraftEvent {
     public MixinAbstractClientPlayer Player;
-    
-    public EventPlayerGetLocationSkin(MixinAbstractClientPlayer p_Player)
-    {
+    private ResourceLocation m_Location = null;
+
+    public EventPlayerGetLocationSkin(MixinAbstractClientPlayer player) {
         super();
-        
-        Player = p_Player;
-    }
-    
-    public void SetResourceLocation(ResourceLocation p_Location)
-    {
-        m_Location = p_Location;
+
+        Player = player;
     }
 
-    public ResourceLocation GetResourceLocation()
-    {
+    public void SetResourceLocation(ResourceLocation location) {
+        m_Location = location;
+    }
+
+    public ResourceLocation GetResourceLocation() {
         return m_Location;
     }
 }

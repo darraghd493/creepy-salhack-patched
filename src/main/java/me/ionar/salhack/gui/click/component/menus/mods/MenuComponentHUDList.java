@@ -3,166 +3,136 @@ package me.ionar.salhack.gui.click.component.menus.mods;
 import me.ionar.salhack.gui.click.component.MenuComponent;
 import me.ionar.salhack.gui.click.component.item.ComponentItem;
 import me.ionar.salhack.gui.click.component.item.ComponentItemHUD;
-import me.ionar.salhack.gui.click.component.item.ComponentItemKeybind;
-import me.ionar.salhack.gui.click.component.item.ComponentItemMod;
 import me.ionar.salhack.gui.click.component.item.ComponentItemValue;
 import me.ionar.salhack.gui.click.component.listeners.ComponentItemListener;
 import me.ionar.salhack.gui.hud.HudComponentItem;
-import me.ionar.salhack.main.SalHack;
 import me.ionar.salhack.managers.HudManager;
 import me.ionar.salhack.managers.ModuleManager;
-import me.ionar.salhack.module.Module;
-import me.ionar.salhack.module.Module.ModuleType;
-import me.ionar.salhack.module.ui.ColorsModule;
 import me.ionar.salhack.module.Value;
+import me.ionar.salhack.module.ui.ColorsModule;
 
-public class MenuComponentHUDList extends MenuComponent
-{
+public class MenuComponentHUDList extends MenuComponent {
 
-    public MenuComponentHUDList(String p_DisplayName, float p_X, float p_Y)
-    {
-        super(p_DisplayName, p_X, p_Y, 100f, 105f, "", (ColorsModule)ModuleManager.Get().GetMod(ColorsModule.class), null);
-        
+    public MenuComponentHUDList(String displayName, float x1, float y1) {
+        super(displayName, x1, y1, 100f, 105f, "", (ColorsModule) ModuleManager.Get().GetMod(ColorsModule.class), null);
+
         final float Width = 105f;
         final float Height = 11f;
 
-        for (HudComponentItem l_Item : HudManager.Get().Items)
-        {
-            ComponentItemListener l_Listener = new ComponentItemListener()
-            {
+        for (HudComponentItem item : HudManager.Get().Items) {
+            ComponentItemListener listener = new ComponentItemListener() {
                 @Override
-                public void OnEnabled()
-                {
-                }
-                
-                @Override
-                public void OnToggled()
-                {
-                    l_Item.SetHidden(!l_Item.IsHidden());
+                public void OnEnabled() {
                 }
 
                 @Override
-                public void OnDisabled()
-                {
+                public void OnToggled() {
+                    item.SetHidden(!item.IsHidden());
                 }
 
                 @Override
-                public void OnHover()
-                {
+                public void OnDisabled() {
+                }
+
+                @Override
+                public void OnHover() {
 
                 }
 
                 @Override
-                public void OnMouseEnter()
-                {
+                public void OnMouseEnter() {
 
                 }
 
                 @Override
-                public void OnMouseLeave()
-                {
+                public void OnMouseLeave() {
 
                 }
             };
-            
-            int l_Flags = ComponentItem.Clickable | ComponentItem.Hoverable | ComponentItem.Tooltip;
-            
-            if (!l_Item.ValueList.isEmpty())
-                l_Flags |= ComponentItem.HasValues;
-            
-            int l_State = 0;
-            
-            if (!l_Item.IsHidden())
-                l_State |= ComponentItem.Clicked;
-            
-            ComponentItem l_CItem = new ComponentItemHUD(l_Item, l_Item.GetDisplayName(), "", l_Flags, l_State, l_Listener, Width, Height);
-            
-            for (Value l_Val : l_Item.ValueList)
-            {
-                l_Listener = new ComponentItemListener()
-                {
+
+            int flags = ComponentItem.Clickable | ComponentItem.Hoverable | ComponentItem.Tooltip;
+
+            if (!item.ValueList.isEmpty())
+                flags |= ComponentItem.HasValues;
+
+            int state = 0;
+
+            if (!item.IsHidden())
+                state |= ComponentItem.Clicked;
+
+            ComponentItem cItem = new ComponentItemHUD(item, item.GetDisplayName(), "", flags, state, listener, Width, Height);
+
+            for (Value val : item.ValueList) {
+                listener = new ComponentItemListener() {
                     @Override
-                    public void OnEnabled()
-                    {
+                    public void OnEnabled() {
                     }
 
                     @Override
-                    public void OnToggled()
-                    {
+                    public void OnToggled() {
                     }
 
                     @Override
-                    public void OnDisabled()
-                    {
+                    public void OnDisabled() {
                     }
 
                     @Override
-                    public void OnHover()
-                    {
+                    public void OnHover() {
 
                     }
 
                     @Override
-                    public void OnMouseEnter()
-                    {
+                    public void OnMouseEnter() {
 
                     }
 
                     @Override
-                    public void OnMouseLeave()
-                    {
+                    public void OnMouseLeave() {
 
                     }
                 };
-                ComponentItemValue l_ValItem = new ComponentItemValue(l_Val, l_Val.getName(), l_Val.getDesc(), ComponentItem.Clickable | ComponentItem.Hoverable | ComponentItem.Tooltip, 0, l_Listener, Width, Height);
-                
-                l_CItem.DropdownItems.add(l_ValItem);
+                ComponentItemValue valItem = new ComponentItemValue(val, val.getName(), val.getDesc(), ComponentItem.Clickable | ComponentItem.Hoverable | ComponentItem.Tooltip, 0, listener, Width, Height);
+
+                cItem.DropdownItems.add(valItem);
             }
 
-            l_Listener = new ComponentItemListener()
-            {
+            listener = new ComponentItemListener() {
                 @Override
-                public void OnEnabled()
-                {
+                public void OnEnabled() {
                 }
 
                 @Override
-                public void OnToggled()
-                {
-                    l_Item.ResetToDefaultPos();
+                public void OnToggled() {
+                    item.ResetToDefaultPos();
                 }
 
                 @Override
-                public void OnDisabled()
-                {
+                public void OnDisabled() {
                 }
 
                 @Override
-                public void OnHover()
-                {
+                public void OnHover() {
 
                 }
 
                 @Override
-                public void OnMouseEnter()
-                {
+                public void OnMouseEnter() {
 
                 }
 
                 @Override
-                public void OnMouseLeave()
-                {
+                public void OnMouseLeave() {
 
                 }
             };
-            
-            ComponentItem l_ResetButton = new ComponentItem("Reset", "Resets the position of " + l_Item.GetDisplayName() + " to default.",  ComponentItem.Clickable | ComponentItem.Hoverable | ComponentItem.Tooltip | ComponentItem.Enum | ComponentItem.DontDisplayClickableHighlight | ComponentItem.RectDisplayAlways, 0, l_Listener, Width, Height);
 
-            l_CItem.DropdownItems.add(l_ResetButton);
-            
-            AddItem(l_CItem);
+            ComponentItem resetButton = new ComponentItem("Reset", "Resets the position of " + item.GetDisplayName() + " to default.", ComponentItem.Clickable | ComponentItem.Hoverable | ComponentItem.Tooltip | ComponentItem.Enum | ComponentItem.DontDisplayClickableHighlight | ComponentItem.RectDisplayAlways, 0, listener, Width, Height);
+
+            cItem.DropdownItems.add(resetButton);
+
+            AddItem(cItem);
         }
-        
+
     }
 
 }

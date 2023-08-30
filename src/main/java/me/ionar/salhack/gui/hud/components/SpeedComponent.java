@@ -13,40 +13,26 @@ import net.minecraft.util.math.MathHelper;
 import java.text.DecimalFormat;
 
 //I got lazy and took this from https://github.com/pleasegivesource/SalHackSkid.
-public class SpeedComponent extends HudComponentItem
-{
-    public final Value<UnitList> SpeedUnit = new Value<UnitList>("Speed Unit", new String[] {"SpeedUnit"}, "Unit of speed. Note that 1 metre = 1 block", UnitList.BPS);
-
-    public enum UnitList
-    {
-        BPS,
-        KMH,
-    }
-
+public class SpeedComponent extends HudComponentItem {
+    public final Value<UnitList> SpeedUnit = new Value<UnitList>("Speed Unit", new String[]{"SpeedUnit"}, "Unit of speed. Note that 1 metre = 1 block", UnitList.BPS);
     final DecimalFormat FormatterBPS = new DecimalFormat("#.#");
     final DecimalFormat FormatterKMH = new DecimalFormat("#.#");
-
-    public SpeedComponent()
-    {
+    private double PrevPosX;
+    private double PrevPosZ;
+    private final Timer timer = new Timer();
+    private String speed = "";
+    private final HudModule hud = (HudModule) ModuleManager.Get().GetMod(HudModule.class);
+    private final SalRainbowUtil Rainbow = new SalRainbowUtil(9);
+    private final int i = 0;
+    public SpeedComponent() {
         super("Speed", 2, 80);
     }
 
-    private double PrevPosX;
-    private double PrevPosZ;
-    private Timer timer = new Timer();
-    private  String speed = "";
-
-    private HudModule l_Hud = (HudModule) ModuleManager.Get().GetMod(HudModule.class);
-    private SalRainbowUtil Rainbow = new SalRainbowUtil(9);
-    private int l_I = 0;
-
     @Override
-    public void render(int p_MouseX, int p_MouseY, float p_PartialTicks)
-    {
-        super.render(p_MouseX, p_MouseY, p_PartialTicks);
+    public void render(int mouseX, int mouseY, float partialTicks) {
+        super.render(mouseX, mouseY, partialTicks);
 
-        if (timer.passed(1000))
-        {
+        if (timer.passed(1000)) {
             PrevPosX = mc.player.prevPosX;
             PrevPosZ = mc.player.prevPosZ;
         }
@@ -54,31 +40,33 @@ public class SpeedComponent extends HudComponentItem
         final double deltaX = mc.player.posX - PrevPosX;
         final double deltaZ = mc.player.posZ - PrevPosZ;
 
-        float l_Distance = MathHelper.sqrt(deltaX * deltaX + deltaZ * deltaZ);
+        float distance = MathHelper.sqrt(deltaX * deltaX + deltaZ * deltaZ);
 
-        double l_BPS = l_Distance * 20;
-        double l_KMH = Math.floor(( l_Distance/1000.0f ) / ( 0.05f/3600.0f ));
+        double bPS = distance * 20;
+        double kMH = Math.floor((distance / 1000.0f) / (0.05f / 3600.0f));
 
-        if (SpeedUnit.getValue() == UnitList.BPS)
-        {
-            String l_FormatterBPS = FormatterBPS.format(l_BPS);
+        if (SpeedUnit.getValue() == UnitList.BPS) {
+            String formatterBPS = FormatterBPS.format(bPS);
 
             //TODO Change BPS to m/s? 1 minecraft block is 1 real life metre iirc.
-            speed = l_Hud.Rainbow.getValue() ? "Speed: " + l_FormatterBPS + " BPS" : ChatFormatting.GRAY + "Speed: " + ChatFormatting.WHITE + l_FormatterBPS + " BPS";
+            speed = hud.Rainbow.getValue() ? "Speed: " + formatterBPS + " BPS" : ChatFormatting.GRAY + "Speed: " + ChatFormatting.WHITE + formatterBPS + " BPS";
 
-        }
-        else if (SpeedUnit.getValue() == UnitList.KMH)
-        {
-            String l_FormatterKMH = FormatterKMH.format(l_KMH);
+        } else if (SpeedUnit.getValue() == UnitList.KMH) {
+            String formatterKMH = FormatterKMH.format(kMH);
 
-            speed = l_Hud.Rainbow.getValue() ? "Speed " + l_FormatterKMH + "km/h" : ChatFormatting.GRAY + "Speed " + ChatFormatting.WHITE + l_FormatterKMH + "km/h";
+            speed = hud.Rainbow.getValue() ? "Speed " + formatterKMH + "km/h" : ChatFormatting.GRAY + "Speed " + ChatFormatting.WHITE + formatterKMH + "km/h";
 
         }
 
         SetWidth(RenderUtil.getStringWidth(speed));
-        SetHeight(RenderUtil.getStringHeight(speed)+1);
+        SetHeight(RenderUtil.getStringHeight(speed) + 1);
 
         Rainbow.OnRender();
-        RenderUtil.drawStringWithShadow(speed, GetX(), GetY(), l_Hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1);
+        RenderUtil.drawStringWithShadow(speed, GetX(), GetY(), hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1);
+    }
+
+    public enum UnitList {
+        BPS,
+        KMH,
     }
 }

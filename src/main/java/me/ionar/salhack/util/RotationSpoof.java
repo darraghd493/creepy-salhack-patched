@@ -1,13 +1,11 @@
 package me.ionar.salhack.util;
 
-public class RotationSpoof
-{
+public class RotationSpoof {
     public float Pitch;
     public float Yaw;
-    
-    public RotationSpoof(float l_Pos, float l_Pos2)
-    {
-        Yaw = l_Pos;
-        Pitch = l_Pos2;
+
+    public RotationSpoof(float pos, float pos2) {
+        Yaw = pos;
+        Pitch = pos2;
     }
 }

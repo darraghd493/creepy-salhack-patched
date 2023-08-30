@@ -9,36 +9,17 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketUseEntity;
 
-public class CriticalsModule extends Module
-{
-    public final Value<Modes> Mode = new Value<Modes>("Mode", new String[] {"M"}, "Mode to change to for criticals", Modes.Packet);
-    
-    public enum Modes
-    {
-        Packet,
-        Jump,
-    }
-    // fix bugs
-    
-    public CriticalsModule()
-    {
-        super("Criticals", new String[]
-        { "BS" }, "Tries to crit your oponent on attack by spoofing positions", "NONE", 0xF2190E, ModuleType.COMBAT);
-    }
-
+public class CriticalsModule extends Module {
+    public final Value<Modes> Mode = new Value<Modes>("Mode", new String[]{"M"}, "Mode to change to for criticals", Modes.Packet);
     @EventHandler
-    private Listener<EventNetworkPacketEvent> PacketEvent = new Listener<>(p_Event ->
+    private final Listener<EventNetworkPacketEvent> PacketEvent = new Listener<>(event ->
     {
-        if (p_Event.getPacket() instanceof CPacketUseEntity)
-        {
-            CPacketUseEntity l_Packet = (CPacketUseEntity)p_Event.getPacket();
-            
-            if (l_Packet.getAction() == CPacketUseEntity.Action.ATTACK)
-            {
-                if (l_Packet.getEntityFromWorld(mc.world) instanceof EntityLivingBase && mc.player.onGround && !mc.gameSettings.keyBindJump.isKeyDown())
-                {
-                    switch (Mode.getValue())
-                    {
+        if (event.getPacket() instanceof CPacketUseEntity) {
+            CPacketUseEntity packet = (CPacketUseEntity) event.getPacket();
+
+            if (packet.getAction() == CPacketUseEntity.Action.ATTACK) {
+                if (packet.getEntityFromWorld(mc.world) instanceof EntityLivingBase && mc.player.onGround && !mc.gameSettings.keyBindJump.isKeyDown()) {
+                    switch (Mode.getValue()) {
                         case Jump:
                             mc.player.jump();
                             break;
@@ -53,4 +34,15 @@ public class CriticalsModule extends Module
             }
         }
     });
+    // fix bugs
+
+    public CriticalsModule() {
+        super("Criticals", new String[]
+                {"BS"}, "Tries to crit your oponent on attack by spoofing positions", "NONE", 0xF2190E, ModuleType.COMBAT);
+    }
+
+    public enum Modes {
+        Packet,
+        Jump,
+    }
 }

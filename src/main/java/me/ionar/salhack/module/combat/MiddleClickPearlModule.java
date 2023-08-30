@@ -18,44 +18,43 @@ import org.lwjgl.input.Mouse;
 //This code was taken from Seppuku Developement here: https://github.com/seppukudevelopment/seppuku. I removed the check to see if you are facing the ground and the ability to throw middle clicking a player if MiddleClickPlayer is enabled.
 public class MiddleClickPearlModule extends Module {
 
+    public final Value<Boolean> MiddleClickFriend = new Value<Boolean>("MiddleClickFriend", new String[]{"MDF"}, "Throw a pearl if middle click friend module is on.", false);
     private boolean clicked;
-    public final Value<Boolean> MiddleClickFriend = new Value<Boolean>("MiddleClickFriend", new String[] { "MDF" }, "Throw a pearl if middle click friend module is on.", false);
+    private MiddleClickFriendsModule _mcf;
+    @EventHandler
+    private final Listener<EventPlayerUpdate> listener = new Listener<>(event -> {
+        if (mc.currentScreen == null && Mouse.isButtonDown(2)) {
+            if (!this.clicked) {
+
+                if (!MiddleClickFriend.getValue() && mcfEnabled()) {
+                    final RayTraceResult result = mc.objectMouseOver;
+
+                    if (result == null || result.entityHit instanceof EntityPlayer) {
+                        return;
+                    }
+                }
+
+                final int pearlSLot = findPearlInHotbar();
+                if (pearlSLot != -1) {
+                    final int oldSlot = mc.player.inventory.currentItem;
+                    mc.player.inventory.currentItem = pearlSLot;
+                    mc.playerController.processRightClick(mc.player, mc.world, EnumHand.MAIN_HAND);
+                    mc.player.inventory.currentItem = oldSlot;
+                }
+            }
+            this.clicked = true;
+        } else {
+            this.clicked = false;
+        }
+    });
 
     public MiddleClickPearlModule() {
         super("MiddleClickPearl", new String[]{"mcp", "autopearl"}, "Throws a when if you middle-click.", "NONE", -1, ModuleType.COMBAT);
     }
 
-    @EventHandler
-    private final Listener<EventPlayerUpdate> listener = new Listener<>(p_Event -> {
-        if(mc.currentScreen == null && Mouse.isButtonDown(2)) {
-            if(!this.clicked) {
-
-                if(!MiddleClickFriend.getValue() && mcfEnabled()) {
-                    final RayTraceResult l_Result = mc.objectMouseOver;
-
-                    if (l_Result == null || l_Result.entityHit instanceof EntityPlayer) {
-                        return;
-                    }
-                }
-
-                    final int pearlSLot = findPearlInHotbar();
-                    if(pearlSLot  != -1) {
-                        final int oldSlot = mc.player.inventory.currentItem;
-                        mc.player.inventory.currentItem = pearlSLot;
-                        mc.playerController.processRightClick(mc.player, mc.world, EnumHand.MAIN_HAND);
-                        mc.player.inventory.currentItem = oldSlot;
-                    }
-                }
-                this.clicked = true;
-            } else {
-                this.clicked = false;
-            }
-        });
-
     private boolean isItemStackPearl(final ItemStack itemStack) {
         return itemStack.getItem() instanceof ItemEnderPearl;
     }
-
 
     private int findPearlInHotbar() {
         for (int index = 0; InventoryPlayer.isHotbar(index); index++) {
@@ -64,11 +63,8 @@ public class MiddleClickPearlModule extends Module {
         return -1;
     }
 
-    private MiddleClickFriendsModule _mcf;
-
     @Override
-    public void init()
-    {
+    public void init() {
         _mcf = (MiddleClickFriendsModule) ModuleManager.Get().GetMod(MiddleClickFriendsModule.class);
     }
 

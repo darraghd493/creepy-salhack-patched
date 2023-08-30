@@ -1,7 +1,5 @@
 package me.ionar.salhack.module.misc;
 
-import java.util.ArrayList;
-
 import me.ionar.salhack.events.player.EventPlayerUpdate;
 import me.ionar.salhack.module.Module;
 import me.ionar.salhack.module.Value;
@@ -14,82 +12,34 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-public class HotbarCacheModule extends Module
-{
-    public final Value<Modes> Mode = new Value<Modes>("Mode", new String[] {"M"}, "The mode of refilling to use, Refill may cause desync", Modes.Cache);
-    public final Value<Float> Delay = new Value<Float>("Delay", new String[] {"D"}, "Delay to use", 1.0f, 0.0f, 10.0f, 1.0f);
-    
-    public enum Modes
-    {
-        Cache,
-        Refill,
-    }
-    
-    public HotbarCacheModule()
-    {
-        super("HotbarCache", new String[] {"HC"}, "Automatically refills your hotbar similar to how autototem works", "NONE", 0xB324DB, ModuleType.MISC);
-    }
-    
-    private ArrayList<Item> Hotbar = new ArrayList<Item>();
-    private Timer timer = new Timer();
-    
-    @Override
-    public String getMetaData()
-    {
-        return String.valueOf(Mode.getValue());
-    }
-    
-    @Override
-    public void onEnable()
-    {
-        super.onEnable();
-        
-        Hotbar.clear();
-        
-        for (int l_I = 0; l_I < 9; ++l_I)
-        {
-            ItemStack l_Stack = mc.player.inventory.getStackInSlot(l_I);
-            
-            if (!l_Stack.isEmpty() && !Hotbar.contains(l_Stack.getItem()))
-                Hotbar.add(l_Stack.getItem());
-            else
-                Hotbar.add(Items.AIR);
-        }
-    }
-    
-    /// Don't activate on startup
-    @Override
-    public void toggleNoSave()
-    {
-        
-    }
-    
+import java.util.ArrayList;
+
+public class HotbarCacheModule extends Module {
+    public final Value<Modes> Mode = new Value<Modes>("Mode", new String[]{"M"}, "The mode of refilling to use, Refill may cause desync", Modes.Cache);
+    public final Value<Float> Delay = new Value<Float>("Delay", new String[]{"D"}, "Delay to use", 1.0f, 0.0f, 10.0f, 1.0f);
+    private final ArrayList<Item> Hotbar = new ArrayList<Item>();
+    private final Timer timer = new Timer();
     @EventHandler
-    private Listener<EventPlayerUpdate> OnPlayerUpdate = new Listener<>(p_Event ->
+    private final Listener<EventPlayerUpdate> OnPlayerUpdate = new Listener<>(event ->
     {
         if (mc.currentScreen != null)
             return;
-        
+
         if (!timer.passed(Delay.getValue() * 1000))
             return;
-        
-        switch (Mode.getValue())
-        {
+
+        switch (Mode.getValue()) {
             case Cache:
-                for (int l_I = 0; l_I < 9; ++l_I)
-                {
-                    if (SwitchSlotIfNeed(l_I))
-                    {
+                for (int i = 0; i < 9; ++i) {
+                    if (SwitchSlotIfNeed(i)) {
                         timer.reset();
                         return;
                     }
                 }
                 break;
             case Refill:
-                for (int l_I = 0; l_I < 9; ++l_I)
-                {
-                    if (RefillSlotIfNeed(l_I))
-                    {
+                for (int i = 0; i < 9; ++i) {
+                    if (RefillSlotIfNeed(i)) {
                         timer.reset();
                         return;
                     }
@@ -99,72 +49,101 @@ public class HotbarCacheModule extends Module
                 break;
         }
     });
+    public HotbarCacheModule() {
+        super("HotbarCache", new String[]{"HC"}, "Automatically refills your hotbar similar to how autototem works", "NONE", 0xB324DB, ModuleType.MISC);
+    }
 
-    private boolean SwitchSlotIfNeed(int p_Slot)
-    {
-        Item l_Item = Hotbar.get(p_Slot);
-        
-        if (l_Item == Items.AIR)
+    @Override
+    public String getMetaData() {
+        return String.valueOf(Mode.getValue());
+    }
+
+    @Override
+    public void onEnable() {
+        super.onEnable();
+
+        Hotbar.clear();
+
+        for (int i = 0; i < 9; ++i) {
+            ItemStack stack = mc.player.inventory.getStackInSlot(i);
+
+            if (!stack.isEmpty() && !Hotbar.contains(stack.getItem()))
+                Hotbar.add(stack.getItem());
+            else
+                Hotbar.add(Items.AIR);
+        }
+    }
+
+    /// Don't activate on startup
+    @Override
+    public void toggleNoSave() {
+
+    }
+
+    private boolean SwitchSlotIfNeed(int slot) {
+        Item item = Hotbar.get(slot);
+
+        if (item == Items.AIR)
             return false;
-        
-        if (!mc.player.inventory.getStackInSlot(p_Slot).isEmpty() && mc.player.inventory.getStackInSlot(p_Slot).getItem() == l_Item)
+
+        if (!mc.player.inventory.getStackInSlot(slot).isEmpty() && mc.player.inventory.getStackInSlot(slot).getItem() == item)
             return false;
-        
-        int l_Slot = PlayerUtil.GetItemSlot(l_Item);
-        
-        if (l_Slot != -1 && l_Slot != 45)
-        {
-            mc.playerController.windowClick(mc.player.inventoryContainer.windowId, l_Slot, 0,
+
+        int slot1 = PlayerUtil.GetItemSlot(item);
+
+        if (slot1 != -1 && slot1 != 45) {
+            mc.playerController.windowClick(mc.player.inventoryContainer.windowId, slot1, 0,
                     ClickType.PICKUP, mc.player);
-            mc.playerController.windowClick(mc.player.inventoryContainer.windowId, p_Slot+36, 0, ClickType.PICKUP,
+            mc.playerController.windowClick(mc.player.inventoryContainer.windowId, slot1 + 36, 0, ClickType.PICKUP,
                     mc.player);
-            mc.playerController.windowClick(mc.player.inventoryContainer.windowId, l_Slot, 0,
+            mc.playerController.windowClick(mc.player.inventoryContainer.windowId, slot1, 0,
                     ClickType.PICKUP, mc.player);
             mc.playerController.updateController();
-            
+
             return true;
         }
-        
+
         return false;
     }
 
-    private boolean RefillSlotIfNeed(int p_Slot)
-    {
-        ItemStack l_Stack = mc.player.inventory.getStackInSlot(p_Slot);
-        
-        if (l_Stack.isEmpty() || l_Stack.getItem() == Items.AIR)
+    private boolean RefillSlotIfNeed(int slot) {
+        ItemStack stack = mc.player.inventory.getStackInSlot(slot);
+
+        if (stack.isEmpty() || stack.getItem() == Items.AIR)
             return false;
-        
-        if (!l_Stack.isStackable())
+
+        if (!stack.isStackable())
             return false;
-        
-        if (l_Stack.getCount() >= l_Stack.getMaxStackSize())
+
+        if (stack.getCount() >= stack.getMaxStackSize())
             return false;
-        
+
         /// We're going to search the entire inventory for the same stack, WITH THE SAME NAME, and use quick move.
-        for (int l_I = 9; l_I < 36; ++l_I)
-        {
-            final ItemStack l_Item = mc.player.inventory.getStackInSlot(l_I);
-            
-            if (l_Item.isEmpty())
+        for (int i = 9; i < 36; ++i) {
+            final ItemStack item = mc.player.inventory.getStackInSlot(i);
+
+            if (item.isEmpty())
                 continue;
-            
-            if (CanItemBeMergedWith(l_Stack, l_Item))
-            {
-                mc.playerController.windowClick(mc.player.inventoryContainer.windowId, l_I, 0,
+
+            if (CanItemBeMergedWith(stack, item)) {
+                mc.playerController.windowClick(mc.player.inventoryContainer.windowId, i, 0,
                         ClickType.QUICK_MOVE, mc.player);
                 mc.playerController.updateController();
-                
+
                 /// Check again for more next available tick
                 return true;
             }
         }
-        
+
         return false;
     }
-    
-    private boolean CanItemBeMergedWith(ItemStack p_Source, ItemStack p_Target)
-    {
-        return p_Source.getItem() == p_Target.getItem() && p_Source.getDisplayName().equals(p_Target.getDisplayName());
+
+    private boolean CanItemBeMergedWith(ItemStack source, ItemStack target) {
+        return source.getItem() == target.getItem() && source.getDisplayName().equals(target.getDisplayName());
+    }
+
+    public enum Modes {
+        Cache,
+        Refill,
     }
 }

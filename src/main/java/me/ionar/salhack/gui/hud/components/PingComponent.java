@@ -8,21 +8,17 @@ import me.ionar.salhack.util.colors.SalRainbowUtil;
 import me.ionar.salhack.util.render.RenderUtil;
 import net.minecraft.client.network.NetworkPlayerInfo;
 
-public class PingComponent extends HudComponentItem
-{
-    public PingComponent()
-    {
+public class PingComponent extends HudComponentItem {
+    private final HudModule hud = (HudModule) ModuleManager.Get().GetMod(HudModule.class);
+    private final SalRainbowUtil Rainbow = new SalRainbowUtil(9);
+    private final int i = 0;
+    public PingComponent() {
         super("Ping", 2, 230);
     }
 
-    private HudModule l_Hud = (HudModule) ModuleManager.Get().GetMod(HudModule.class);
-    private SalRainbowUtil Rainbow = new SalRainbowUtil(9);
-    private int l_I = 0;
-
     @Override
-    public void render(int p_MouseX, int p_MouseY, float p_PartialTicks)
-    {
-        super.render(p_MouseX, p_MouseY, p_PartialTicks);
+    public void render(int mouseX, int mouseY, float partialTicks) {
+        super.render(mouseX, mouseY, partialTicks);
 
         if (mc.world == null || mc.player == null || mc.player.getUniqueID() == null)
             return;
@@ -32,13 +28,13 @@ public class PingComponent extends HudComponentItem
         if (playerInfo == null)
             return;
 
-        final String ping = l_Hud.Rainbow.getValue() ? "Ping " + playerInfo.getResponseTime() + "ms" : ChatFormatting.GRAY + "Ping " + ChatFormatting.WHITE + playerInfo.getResponseTime() + "ms";
+        final String ping = hud.Rainbow.getValue() ? "Ping " + playerInfo.getResponseTime() + "ms" : ChatFormatting.GRAY + "Ping " + ChatFormatting.WHITE + playerInfo.getResponseTime() + "ms";
 
         this.SetWidth(RenderUtil.getStringWidth(ping));
-        this.SetHeight(RenderUtil.getStringHeight(ping)+1);
+        this.SetHeight(RenderUtil.getStringHeight(ping) + 1);
 
         Rainbow.OnRender();
-        RenderUtil.drawStringWithShadow(ping, this.GetX(), this.GetY(), l_Hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1);
+        RenderUtil.drawStringWithShadow(ping, this.GetX(), this.GetY(), hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1);
     }
 
 }

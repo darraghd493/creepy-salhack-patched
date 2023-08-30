@@ -1,5 +1,16 @@
 package me.ionar.salhack.managers;
 
+import me.ionar.salhack.SalHackMod;
+import me.ionar.salhack.events.player.EventPlayerGetLocationCape;
+import me.ionar.salhack.main.SalHack;
+import me.ionar.salhack.main.Wrapper;
+import me.zero.alpine.fork.listener.EventHandler;
+import me.zero.alpine.fork.listener.Listenable;
+import me.zero.alpine.fork.listener.Listener;
+import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.util.ResourceLocation;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,30 +27,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.imageio.ImageIO;
-
-import me.ionar.salhack.SalHackMod;
-import me.ionar.salhack.events.player.EventPlayerGetLocationCape;
-import me.ionar.salhack.main.SalHack;
-import me.ionar.salhack.main.Wrapper;
-import me.zero.alpine.fork.listener.EventHandler;
-import me.zero.alpine.fork.listener.Listenable;
-import me.zero.alpine.fork.listener.Listener;
-import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.util.ResourceLocation;
-
 public class CapeManager implements Listenable {
     private final HashMap<String, ResourceLocation> CapeUsers = new HashMap<String, ResourceLocation>();
     private final HashMap<String, ResourceLocation> Capes = new HashMap<String, ResourceLocation>(); /// < Only used at startup
     List<String> capesList = new ArrayList<String>();
 
     @EventHandler
-    private Listener<EventPlayerGetLocationCape> OnGetLocationSkin = new Listener<>(p_Event -> {
+    private final Listener<EventPlayerGetLocationCape> OnGetLocationSkin = new Listener<>(event -> {
         if (Wrapper.GetMC().renderEngine == null) return;
 
-        if (CapeUsers.containsKey(p_Event.Player.getUniqueID().toString())) {
-            p_Event.cancel();
-            p_Event.SetResourceLocation(CapeUsers.get(p_Event.Player.getUniqueID().toString()));
+        if (CapeUsers.containsKey(event.Player.getUniqueID().toString())) {
+            event.cancel();
+            event.SetResourceLocation(CapeUsers.get(event.Player.getUniqueID().toString()));
         }
     });
 
@@ -55,16 +54,16 @@ public class CapeManager implements Listenable {
 
     public void LoadCapes() {
         try {
-            URL l_URL;
-            URLConnection l_Connection;
-            BufferedReader l_Reader;
-            String l_Line;
+            URL uRL;
+            URLConnection connection;
+            BufferedReader reader;
+            String line;
 
             System.out.println("Downloading & Loading cape imgs");
-            l_URL = new URL("https://raw.githubusercontent.com/CreepyOrb924/creepy-salhack-assets/master/assets/capes/cape.txt");
-            l_Connection = l_URL.openConnection();
-            l_Connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.29 Safari/537.36");
-            l_Reader = new BufferedReader(new InputStreamReader(l_Connection.getInputStream()));
+            uRL = new URL("https://raw.githubusercontent.com/CreepyOrb924/creepy-salhack-assets/master/assets/capes/cape.txt");
+            connection = uRL.openConnection();
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.29 Safari/537.36");
+            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
             try (Stream<Path> paths = Files.walk(Paths.get("SalHack/Capes/"))) {
                 paths.filter(Files::isRegularFile).forEach(path ->
@@ -72,63 +71,63 @@ public class CapeManager implements Listenable {
                 );
             }
 
-            while ((l_Line = l_Reader.readLine()) != null) {
-                String[] l_Split = l_Line.split(" ");
+            while ((line = reader.readLine()) != null) {
+                String[] split = line.split(" ");
 
-                if (!capesList.contains(l_Split[1]) && l_Split.length == 2)
-                    DownloadCapeFromLocationWithName(l_Split[0], l_Split[1]);
+                if (!capesList.contains(split[1]) && split.length == 2)
+                    DownloadCapeFromLocationWithName(split[0], split[1]);
 
-                addCape(l_Split[1]);
+                addCape(split[1]);
             }
-            l_Reader.close();
+            reader.close();
 
-            l_URL = new URL("https://raw.githubusercontent.com/CreepyOrb924/creepy-salhack-assets/master/assets/capes/capes.txt");
-            l_Connection = l_URL.openConnection();
-            l_Connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.29 Safari/537.36");
-            l_Reader = new BufferedReader(new InputStreamReader(l_Connection.getInputStream()));
+            uRL = new URL("https://raw.githubusercontent.com/CreepyOrb924/creepy-salhack-assets/master/assets/capes/capes.txt");
+            connection = uRL.openConnection();
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.29 Safari/537.36");
+            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-            while ((l_Line = l_Reader.readLine()) != null)
-                ProcessCapeString(l_Line);
-            l_Reader.close();
+            while ((line = reader.readLine()) != null)
+                ProcessCapeString(line);
+            reader.close();
         } catch (Exception e) {
-            System.out.println(e.toString());
+            System.out.println(e);
         }
 
         System.out.println("Done loading capes");
         capesList.clear();
     }
 
-    private void ProcessCapeString(String p_String) {
+    private void ProcessCapeString(String string) {
         // FIX [me.ionar.salhack.managers.CapeManager:ProcessCapeString:104]: Invalid cape name amazonemp for user https://i.imgur.com/D6PS7w0.png
-        String[] l_Split = p_String.split(" ");
+        String[] split = string.split(" ");
 
-        if (l_Split.length == 2) {
+        if (split.length == 2) {
             /// User, CapeName
-            ResourceLocation l_Cape = GetCapeFromName(l_Split[1]);
+            ResourceLocation cape = GetCapeFromName(split[1]);
 
-            if (l_Cape != null) CapeUsers.put(l_Split[0], l_Cape);
-            else System.out.println("Invalid cape name " + l_Split[1] + " for user " + l_Split[0]);
+            if (cape != null) CapeUsers.put(split[0], cape);
+            else System.out.println("Invalid cape name " + split[1] + " for user " + split[0]);
         }
     }
 
-    private ResourceLocation GetCapeFromName(String p_Name) {
-        if (!Capes.containsKey(p_Name)) return null;
-        return Capes.get(p_Name);
+    private ResourceLocation GetCapeFromName(String name1) {
+        if (!Capes.containsKey(name1)) return null;
+        return Capes.get(name1);
     }
 
     private void addCape(String name) throws IOException {
         File file = new File("SalHack/Capes/" + name + ".png");
         BufferedImage bufferedImage = ImageIO.read(file);
-        DynamicTexture l_Texture = new DynamicTexture(bufferedImage);
+        DynamicTexture texture = new DynamicTexture(bufferedImage);
 
-        Capes.put(name, Wrapper.GetMC().getTextureManager().getDynamicTextureLocation("SalHack/Capes/", l_Texture));
+        Capes.put(name, Wrapper.GetMC().getTextureManager().getDynamicTextureLocation("SalHack/Capes/", texture));
     }
 
-    public void DownloadCapeFromLocationWithName(String p_Link, String p_Name) throws MalformedURLException, IOException {
-        BufferedImage bufferedImage = ImageIO.read(new URL(p_Link));
-        File file = new File("SalHack/Capes/" + p_Name + ".png");
+    public void DownloadCapeFromLocationWithName(String link, String name1) throws IOException {
+        BufferedImage bufferedImage = ImageIO.read(new URL(link));
+        File file = new File("SalHack/Capes/" + name1 + ".png");
 
         ImageIO.write(bufferedImage, "png", file);
-        System.out.println("Downloaded cape " + p_Name);
+        System.out.println("Downloaded cape " + name1);
     }
 }

@@ -1,7 +1,5 @@
 package me.ionar.salhack.gui.minecraft;
 
-import java.util.concurrent.TimeUnit;
-
 import me.ionar.salhack.main.AlwaysEnabledModule;
 import me.ionar.salhack.managers.ModuleManager;
 import me.ionar.salhack.module.misc.AutoReconnectModule;
@@ -10,11 +8,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.multiplayer.GuiConnecting;
 
+import java.util.concurrent.TimeUnit;
+
 public class SalGuiReconnectButton extends GuiButton {
 
-    private AutoReconnectModule Mod;
-    private Timer timer = new Timer();
-    private float ReconnectTimer;
+    private final AutoReconnectModule Mod;
+    private final Timer timer = new Timer();
+    private final float ReconnectTimer;
 
     public SalGuiReconnectButton(int buttonId, int x, int y, String buttonText) {
         super(buttonId, x, y, buttonText);

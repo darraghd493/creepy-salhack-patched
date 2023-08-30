@@ -1,5 +1,12 @@
 package me.ionar.salhack.module.render;
 
+import me.ionar.salhack.events.render.RenderEvent;
+import me.ionar.salhack.module.Module;
+import me.ionar.salhack.module.Value;
+import me.ionar.salhack.util.MathUtil;
+import me.ionar.salhack.util.render.RenderUtil;
+import me.zero.alpine.fork.listener.EventHandler;
+import me.zero.alpine.fork.listener.Listener;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -16,15 +23,8 @@ import net.minecraft.util.math.*;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL32;
 
-import me.ionar.salhack.events.render.RenderEvent;
-import me.ionar.salhack.module.Module;
-import me.ionar.salhack.module.Value;
-import me.ionar.salhack.util.MathUtil;
-import me.ionar.salhack.util.render.RenderUtil;
-import me.zero.alpine.fork.listener.EventHandler;
-import me.zero.alpine.fork.listener.Listener;
-
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -40,41 +40,30 @@ import static org.lwjgl.opengl.GL11.*;
  * @author Ddong
  * @since Feb 18, 2017
  */
-public final class TrajectoriesModule extends Module
-{
-    private final Queue<Vec3d> flightPoint = new ConcurrentLinkedQueue<>();
-
+public final class TrajectoriesModule extends Module {
     public final Value<Float> width = new Value<Float>("Width", new String[]
-    { "W", "Width" }, "Pixel width of the projectile path.", 1.0f, 0.0f, 5.0f, 0.1f);
+            {"W", "Width"}, "Pixel width of the projectile path.", 1.0f, 0.0f, 5.0f, 0.1f);
     public final Value<Float> red = new Value<Float>("Red", new String[]
-    { "R" }, "Red value for the projectile path.", 255.0f, 0.0f, 255.0f, 1.0f);
+            {"R"}, "Red value for the projectile path.", 255.0f, 0.0f, 255.0f, 1.0f);
     public final Value<Float> green = new Value<Float>("Green", new String[]
-    { "G" }, "Green value for the projectile path.", 255.0f, 0.0f, 255.0f, 1.0f);
+            {"G"}, "Green value for the projectile path.", 255.0f, 0.0f, 255.0f, 1.0f);
     public final Value<Float> blue = new Value<Float>("Blue", new String[]
-    { "B" }, "Blue value for the projectile path.", 255.0f, 0.0f, 255.0f, 1.0f);
+            {"B"}, "Blue value for the projectile path.", 255.0f, 0.0f, 255.0f, 1.0f);
     public final Value<Float> alpha = new Value<Float>("Alpha", new String[]
-    { "A" }, "Alpha value for the projectile path.", 255.0f, 0.0f, 255.0f, 1.0f);
-
-    public TrajectoriesModule()
-    {
-        super("Trajectories", new String[]
-        { "Proj" }, "Projects the possible path of an entity that was fired.", "NONE", -1, ModuleType.RENDER);
-    }
-
+            {"A"}, "Alpha value for the projectile path.", 255.0f, 0.0f, 255.0f, 1.0f);
+    private final Queue<Vec3d> flightPoint = new ConcurrentLinkedQueue<>();
     @EventHandler
-    private Listener<RenderEvent> OnRenderEvent = new Listener<>(p_Event ->
+    private final Listener<RenderEvent> OnRenderEvent = new Listener<>(event ->
     {
         ThrowableType throwingType = this.getTypeFromCurrentItem(mc.player);
 
-        if (throwingType == ThrowableType.NONE)
-        {
+        if (throwingType == ThrowableType.NONE) {
             return;
         }
 
         FlightPath flightPath = new FlightPath(mc.player, throwingType);
 
-        while (!flightPath.isCollided())
-        {
+        while (!flightPath.isCollided()) {
             flightPath.onUpdate();
 
             flightPoint.offer(new Vec3d(flightPath.position.x - mc.getRenderManager().viewerPosX, flightPath.position.y - mc.getRenderManager().viewerPosY,
@@ -83,7 +72,7 @@ public final class TrajectoriesModule extends Module
 
         final boolean bobbing = mc.gameSettings.viewBobbing;
         mc.gameSettings.viewBobbing = false;
-        mc.entityRenderer.setupCameraTransform(p_Event.getPartialTicks(), 0);
+        mc.entityRenderer.setupCameraTransform(event.getPartialTicks(), 0);
         GlStateManager.pushMatrix();
         GlStateManager.disableTexture2D();
         GlStateManager.enableBlend();
@@ -98,14 +87,12 @@ public final class TrajectoriesModule extends Module
         final Tessellator tessellator = Tessellator.getInstance();
         final BufferBuilder bufferbuilder = tessellator.getBuffer();
 
-        while (!flightPoint.isEmpty())
-        {
+        while (!flightPoint.isEmpty()) {
             bufferbuilder.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
             Vec3d head = flightPoint.poll();
             bufferbuilder.pos(head.x, head.y, head.z).color(red.getValue() / 255.0f, green.getValue() / 255.0f, blue.getValue() / 255.0f, alpha.getValue() / 255.0f).endVertex();
 
-            if (flightPoint.peek() != null)
-            {
+            if (flightPoint.peek() != null) {
                 Vec3d point = flightPoint.peek();
                 bufferbuilder.pos(point.x, point.y, point.z).color(red.getValue() / 255.0f, green.getValue() / 255.0f, blue.getValue() / 255.0f, alpha.getValue() / 255.0f).endVertex();
             }
@@ -123,56 +110,51 @@ public final class TrajectoriesModule extends Module
         GlStateManager.popMatrix();
 
         mc.gameSettings.viewBobbing = bobbing;
-        mc.entityRenderer.setupCameraTransform(p_Event.getPartialTicks(), 0);
+        mc.entityRenderer.setupCameraTransform(event.getPartialTicks(), 0);
 
-        if (flightPath.collided)
-        {
+        if (flightPath.collided) {
             final RayTraceResult hit = flightPath.target;
             AxisAlignedBB bb = null;
-            
+
             if (hit == null)
                 return;
 
-            if (hit.typeOfHit == RayTraceResult.Type.BLOCK)
-            {
+            if (hit.typeOfHit == RayTraceResult.Type.BLOCK) {
                 final BlockPos blockpos = hit.getBlockPos();
                 final IBlockState iblockstate = mc.world.getBlockState(blockpos);
 
-                if (iblockstate.getMaterial() != Material.AIR && mc.world.getWorldBorder().contains(blockpos))
-                {
+                if (iblockstate.getMaterial() != Material.AIR && mc.world.getWorldBorder().contains(blockpos)) {
                     final Vec3d interp = MathUtil.interpolateEntity(mc.player, mc.getRenderPartialTicks());
                     bb = iblockstate.getSelectedBoundingBox(mc.world, blockpos).grow(0.0020000000949949026D).offset(-interp.x, -interp.y, -interp.z);
                 }
-            }
-            else if (hit.typeOfHit == RayTraceResult.Type.ENTITY && hit.entityHit != null)
-            {
+            } else if (hit.typeOfHit == RayTraceResult.Type.ENTITY && hit.entityHit != null) {
                 final AxisAlignedBB entityBB = hit.entityHit.getEntityBoundingBox();
-                if (entityBB != null)
-                {
+                if (entityBB != null) {
                     bb = new AxisAlignedBB(entityBB.minX - mc.getRenderManager().viewerPosX, entityBB.minY - mc.getRenderManager().viewerPosY, entityBB.minZ - mc.getRenderManager().viewerPosZ,
                             entityBB.maxX - mc.getRenderManager().viewerPosX, entityBB.maxY - mc.getRenderManager().viewerPosY, entityBB.maxZ - mc.getRenderManager().viewerPosZ);
                 }
             }
 
-            if (bb != null)
-            {
+            if (bb != null) {
                 RenderUtil.drawBoundingBox(bb, width.getValue(), red.getValue() / 255.0f, green.getValue() / 255.0f, blue.getValue() / 255.0f, alpha.getValue() / 255.0f);
             }
         }
     });
 
-    private ThrowableType getTypeFromCurrentItem(EntityPlayerSP player)
-    {
+    public TrajectoriesModule() {
+        super("Trajectories", new String[]
+                {"Proj"}, "Projects the possible path of an entity that was fired.", "NONE", -1, ModuleType.RENDER);
+    }
+
+    private ThrowableType getTypeFromCurrentItem(EntityPlayerSP player) {
         // Check if we're holding an item first
-        if (player.getHeldItemMainhand() == null)
-        {
+        if (player.getHeldItemMainhand() == null) {
             return ThrowableType.NONE;
         }
 
         final ItemStack itemStack = player.getHeldItem(EnumHand.MAIN_HAND);
         // Check what type of item this is
-        switch (Item.getIdFromItem(itemStack.getItem()))
-        {
+        switch (Item.getIdFromItem(itemStack.getItem())) {
             case 261: // ItemBow
                 if (player.isHandActive())
                     return ThrowableType.ARROW;
@@ -195,8 +177,7 @@ public final class TrajectoriesModule extends Module
         return ThrowableType.NONE;
     }
 
-    enum ThrowableType
-    {
+    enum ThrowableType {
         /**
          * Represents a non-throwable object.
          */
@@ -230,8 +211,7 @@ public final class TrajectoriesModule extends Module
         private final float velocity;
         private final float gravity;
 
-        ThrowableType(float velocity, float gravity)
-        {
+        ThrowableType(float velocity, float gravity) {
             this.velocity = velocity;
             this.gravity = gravity;
         }
@@ -242,8 +222,7 @@ public final class TrajectoriesModule extends Module
          * @return entity velocity
          */
 
-        public float getVelocity()
-        {
+        public float getVelocity() {
             return velocity;
         }
 
@@ -252,8 +231,7 @@ public final class TrajectoriesModule extends Module
          *
          * @return constant world gravity
          */
-        public float getGravity()
-        {
+        public float getGravity() {
             return gravity;
         }
     }
@@ -261,9 +239,8 @@ public final class TrajectoriesModule extends Module
     /**
      * A class used to mimic the flight of an entity. Actual implementation resides in multiple classes but the parent of all of them is {@link net.minecraft.entity.projectile.EntityThrowable}
      */
-    final class FlightPath
-    {
-        private EntityPlayerSP shooter;
+    final class FlightPath {
+        private final EntityPlayerSP shooter;
         private Vec3d position;
         private Vec3d motion;
         private float yaw;
@@ -271,10 +248,9 @@ public final class TrajectoriesModule extends Module
         private AxisAlignedBB boundingBox;
         private boolean collided;
         private RayTraceResult target;
-        private ThrowableType throwableType;
+        private final ThrowableType throwableType;
 
-        FlightPath(EntityPlayerSP player, ThrowableType throwableType)
-        {
+        FlightPath(EntityPlayerSP player, ThrowableType throwableType) {
             this.shooter = player;
             this.throwableType = throwableType;
 
@@ -297,16 +273,14 @@ public final class TrajectoriesModule extends Module
         /**
          * Update the entity's data in the world.
          */
-        public void onUpdate()
-        {
+        public void onUpdate() {
             // Get the predicted positions in the world
             Vec3d prediction = this.position.add(this.motion);
             // Check if we've collided with a block in the same time
             RayTraceResult blockCollision = this.shooter.getEntityWorld().rayTraceBlocks(this.position, prediction, this.throwableType == ThrowableType.FISHING_ROD, !this.collidesWithNoBoundingBox(),
                     false);
             // Check if we got a block collision
-            if (blockCollision != null)
-            {
+            if (blockCollision != null) {
                 prediction = blockCollision.hitVec;
             }
 
@@ -314,8 +288,7 @@ public final class TrajectoriesModule extends Module
             this.onCollideWithEntity(prediction, blockCollision);
 
             // Check if we had a collision
-            if (this.target != null)
-            {
+            if (this.target != null) {
                 this.collided = true;
                 // Update position
                 this.setPosition(this.target.hitVec);
@@ -323,8 +296,7 @@ public final class TrajectoriesModule extends Module
             }
 
             // Sanity check to see if we've gone below the world (if we have we will never collide)
-            if (this.position.y <= 0.0d)
-            {
+            if (this.position.y <= 0.0d) {
                 // Force this to true even though we haven't collided with anything
                 this.collided = true;
                 return;
@@ -334,15 +306,13 @@ public final class TrajectoriesModule extends Module
             this.position = this.position.add(this.motion);
             float motionModifier = 0.99F;
             // Check if our path will collide with water
-            if (this.shooter.getEntityWorld().isMaterialInBB(this.boundingBox, Material.WATER))
-            {
+            if (this.shooter.getEntityWorld().isMaterialInBB(this.boundingBox, Material.WATER)) {
                 // Arrows move slower in water than normal throwables
                 motionModifier = this.throwableType == ThrowableType.ARROW ? 0.6F : 0.8F;
             }
 
             // Apply the fishing rod specific motion modifier
-            if (this.throwableType == ThrowableType.FISHING_ROD)
-            {
+            if (this.throwableType == ThrowableType.FISHING_ROD) {
                 motionModifier = 0.92f;
             }
 
@@ -359,10 +329,8 @@ public final class TrajectoriesModule extends Module
          *
          * @return true if type collides
          */
-        private boolean collidesWithNoBoundingBox()
-        {
-            switch (this.throwableType)
-            {
+        private boolean collidesWithNoBoundingBox() {
+            switch (this.throwableType) {
                 case FISHING_ROD:
                 case NORMAL:
                     return true;
@@ -377,8 +345,7 @@ public final class TrajectoriesModule extends Module
          * @param prediction     the predicted position
          * @param blockCollision block collision if we had one
          */
-        private void onCollideWithEntity(Vec3d prediction, RayTraceResult blockCollision)
-        {
+        private void onCollideWithEntity(Vec3d prediction, RayTraceResult blockCollision) {
             Entity collidingEntity = null;
             RayTraceResult collidingPosition = null;
 
@@ -388,11 +355,9 @@ public final class TrajectoriesModule extends Module
                     this.boundingBox.expand(this.motion.x, this.motion.y, this.motion.z).grow(1.0D, 1.0D, 1.0D));
 
             // Loop through every loaded entity in the world
-            for (Entity entity : collisionEntities)
-            {
+            for (Entity entity : collisionEntities) {
                 // Check if we can collide with the entity or it's ourself
-                if (!entity.canBeCollidedWith())
-                {
+                if (!entity.canBeCollidedWith()) {
                     continue;
                 }
 
@@ -402,13 +367,11 @@ public final class TrajectoriesModule extends Module
                 RayTraceResult objectPosition = expandedBox.calculateIntercept(this.position, prediction);
 
                 // Check if we have a collision
-                if (objectPosition != null)
-                {
+                if (objectPosition != null) {
                     double distanceTo = this.position.distanceTo(objectPosition.hitVec);
 
                     // Check if we've gotten a closer entity
-                    if (distanceTo < currentDistance || currentDistance == 0.0D)
-                    {
+                    if (distanceTo < currentDistance || currentDistance == 0.0D) {
                         collidingEntity = entity;
                         collidingPosition = objectPosition;
                         currentDistance = distanceTo;
@@ -417,13 +380,10 @@ public final class TrajectoriesModule extends Module
             }
 
             // Check if we had an entity
-            if (collidingEntity != null)
-            {
+            if (collidingEntity != null) {
                 // Set our target to the result
                 this.target = new RayTraceResult(collidingEntity, collidingPosition.hitVec);
-            }
-            else
-            {
+            } else {
                 // Fallback to the block collision
                 this.target = blockCollision;
             }
@@ -434,26 +394,20 @@ public final class TrajectoriesModule extends Module
          *
          * @return entity velocity in flight
          */
-        private float getInitialVelocity()
-        {
-            switch (this.throwableType)
-            {
-                // Arrows use the current use duration as a velocity multplier
-                case ARROW:
-                    // Check how long we've been using the bow
-                    int useDuration = this.shooter.getHeldItem(EnumHand.MAIN_HAND).getItem().getMaxItemUseDuration(this.shooter.getHeldItem(EnumHand.MAIN_HAND)) - this.shooter.getItemInUseCount();
-                    float velocity = (float) useDuration / 20.0F;
-                    velocity = (velocity * velocity + velocity * 2.0F) / 3.0F;
-                    if (velocity > 1.0F)
-                    {
-                        velocity = 1.0F;
-                    }
+        private float getInitialVelocity() {
+            // Arrows use the current use duration as a velocity multplier
+            if (Objects.requireNonNull(this.throwableType) == ThrowableType.ARROW) {// Check how long we've been using the bow
+                int useDuration = this.shooter.getHeldItem(EnumHand.MAIN_HAND).getItem().getMaxItemUseDuration(this.shooter.getHeldItem(EnumHand.MAIN_HAND)) - this.shooter.getItemInUseCount();
+                float velocity = (float) useDuration / 20.0F;
+                velocity = (velocity * velocity + velocity * 2.0F) / 3.0F;
+                if (velocity > 1.0F) {
+                    velocity = 1.0F;
+                }
 
-                    // When the arrow is spawned inside of ItemBow, they multiply it by 2
-                    return (velocity * 2.0f) * throwableType.getVelocity();
-                default:
-                    return throwableType.getVelocity();
+                // When the arrow is spawned inside of ItemBow, they multiply it by 2
+                return (velocity * 2.0f) * throwableType.getVelocity();
             }
+            return throwableType.getVelocity();
         }
 
         /**
@@ -461,8 +415,7 @@ public final class TrajectoriesModule extends Module
          *
          * @return gravity relating to item
          */
-        private float getGravityVelocity()
-        {
+        private float getGravityVelocity() {
             return throwableType.getGravity();
         }
 
@@ -475,8 +428,7 @@ public final class TrajectoriesModule extends Module
          * @param yaw   yaw rotation axis
          * @param pitch pitch rotation axis
          */
-        private void setLocationAndAngles(double x, double y, double z, float yaw, float pitch)
-        {
+        private void setLocationAndAngles(double x, double y, double z, float yaw, float pitch) {
             this.position = new Vec3d(x, y, z);
             this.yaw = yaw;
             this.pitch = pitch;
@@ -487,8 +439,7 @@ public final class TrajectoriesModule extends Module
          *
          * @param position position in world
          */
-        private void setPosition(Vec3d position)
-        {
+        private void setPosition(Vec3d position) {
             this.position = new Vec3d(position.x, position.y, position.z);
             // Usually this is this.width / 2.0f but throwables change
             double entitySize = (this.throwableType == ThrowableType.ARROW ? 0.5d : 0.25d) / 2.0d;
@@ -502,8 +453,7 @@ public final class TrajectoriesModule extends Module
          * @param motion   velocity in world
          * @param velocity starting velocity
          */
-        private void setThrowableHeading(Vec3d motion, float velocity)
-        {
+        private void setThrowableHeading(Vec3d motion, float velocity) {
             // Divide the current motion by the length of the vector
             this.motion = MathUtil.div(motion, (float) motion.length());
             // Multiply by the velocity
@@ -515,8 +465,7 @@ public final class TrajectoriesModule extends Module
          *
          * @return path collides with ground
          */
-        public boolean isCollided()
-        {
+        public boolean isCollided() {
             return collided;
         }
 
@@ -525,8 +474,7 @@ public final class TrajectoriesModule extends Module
          *
          * @return moving object target
          */
-        public RayTraceResult getCollidingTarget()
-        {
+        public RayTraceResult getCollidingTarget() {
             return target;
         }
     }

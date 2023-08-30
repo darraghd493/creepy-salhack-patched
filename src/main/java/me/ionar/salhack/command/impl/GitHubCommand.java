@@ -4,24 +4,21 @@ import me.ionar.salhack.command.Command;
 
 public class GitHubCommand extends Command {
 
-    public GitHubCommand()
-    {
+    public GitHubCommand() {
         super("GitHub", "Sends GitHub link.");
     }
 
     @Override
-    public void ProcessCommand(String p_Args) {
-        String[] l_Split = p_Args.split(" ");
+    public void ProcessCommand(String args) {
+        String[] split = args.split(" ");
 
-        if (l_Split == null || l_Split.length <= 1) {
+        if (split == null || split.length <= 1) {
             mc.player.sendChatMessage("https://github.com/CreepyOrb924/creepy-salhack/releases");
-            return;
         }
     }
 
     @Override
-    public String GetHelp()
-    {
+    public String GetHelp() {
         return "Sends the Creepy-SalHack GitHub link to chat.";
     }
 

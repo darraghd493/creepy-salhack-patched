@@ -20,18 +20,19 @@ import java.util.Iterator;
 public class ArmorComponent extends HudComponentItem {
     public final Value<Modes> Mode = new Value<Modes>("Mode", new String[]{"Mode"}, "Modes", Modes.Bars);
     DecimalFormat Formatter = new DecimalFormat("#");
-    private HudModule l_Hud = (HudModule) ModuleManager.Get().GetMod(HudModule.class);
-    private SalRainbowUtil Rainbow = new SalRainbowUtil(9);
-    private int l_I = 0;
+    private final HudModule hud = (HudModule) ModuleManager.Get().GetMod(HudModule.class);
+    private final SalRainbowUtil Rainbow = new SalRainbowUtil(9);
+    private final int i = 0;
+
     public ArmorComponent() {
         super("Armor", 200, 200);
     }
 
-    public static float GetPctFromStack(ItemStack p_Stack) {
-        float l_ArmorPct = ((float) (p_Stack.getMaxDamage() - p_Stack.getItemDamage()) / (float) p_Stack.getMaxDamage()) * 100.0f;
-        float l_ArmorBarPct = Math.min(l_ArmorPct, 100.0f);
+    public static float GetPctFromStack(ItemStack stack) {
+        float armorPct = ((float) (stack.getMaxDamage() - stack.getItemDamage()) / (float) stack.getMaxDamage()) * 100.0f;
+        float armorBarPct = Math.min(armorPct, 100.0f);
 
-        return l_ArmorBarPct;
+        return armorBarPct;
     }
 
     @Override
@@ -41,85 +42,85 @@ public class ArmorComponent extends HudComponentItem {
 
         super.render(mouseX, mouseY, partialTicks);
 
-        final Iterator<ItemStack> l_Items = mc.player.getArmorInventoryList().iterator();
-        final ArrayList<ItemStack> l_Stacks = new ArrayList<>();
+        final Iterator<ItemStack> items = mc.player.getArmorInventoryList().iterator();
+        final ArrayList<ItemStack> stacks = new ArrayList<>();
 
-        while (l_Items.hasNext()) {
-            final ItemStack l_Stack = l_Items.next();
-            if (l_Stack != ItemStack.EMPTY && l_Stack.getItem() != Items.AIR) {
-                l_Stacks.add(l_Stack);
+        while (items.hasNext()) {
+            final ItemStack stack = items.next();
+            if (stack != ItemStack.EMPTY && stack.getItem() != Items.AIR) {
+                stacks.add(stack);
             }
         }
 
-        Collections.reverse(l_Stacks);
+        Collections.reverse(stacks);
 
         switch (Mode.getValue()) {
             case Bars:
 
                 RenderUtil.drawRect(GetX(), GetY(), GetX() + GetWidth(), GetY() + GetHeight(), 0x990C0C0C);
 
-                int l_Y = 0;
+                int y = 0;
 
-                for (int l_I = 0; l_I < l_Stacks.size(); ++l_I) {
-                    ItemStack l_Stack = l_Stacks.get(l_I);
+                for (int i = 0; i < stacks.size(); ++i) {
+                    ItemStack stack = stacks.get(i);
 
-                    float l_X = (GetX() + 1);
+                    float x = (GetX() + 1);
 
-                    float l_ArmorPct = ((float) (l_Stack.getMaxDamage() - l_Stack.getItemDamage()) / (float) l_Stack.getMaxDamage()) * 100.0f;
-                    float l_ArmorBarPct = Math.min(l_ArmorPct, 100.0f);
+                    float armorPct = ((float) (stack.getMaxDamage() - stack.getItemDamage()) / (float) stack.getMaxDamage()) * 100.0f;
+                    float armorBarPct = Math.min(armorPct, 100.0f);
 
-                    int l_ColorMin = 0x999FF365;
-                    int l_ColorMax = 0x9913FF00;
+                    int colorMin = 0x999FF365;
+                    int colorMax = 0x9913FF00;
 
-                    if (l_ArmorBarPct < 80f && l_ArmorPct > 30f) {
-                        l_ColorMin = 0x99FFB600;
-                        l_ColorMax = 0x99FFF700;
-                    } else if (l_ArmorBarPct < 30f) {
-                        l_ColorMin = 0x99FF0000;
-                        l_ColorMax = 0x99DA1A1A;
+                    if (armorBarPct < 80f && armorPct > 30f) {
+                        colorMin = 0x99FFB600;
+                        colorMax = 0x99FFF700;
+                    } else if (armorBarPct < 30f) {
+                        colorMin = 0x99FF0000;
+                        colorMax = 0x99DA1A1A;
                     }
 
-                    RenderUtil.drawGradientRect(l_X, GetY() + l_Y, l_X + (GetWidth() * (l_ArmorBarPct / 100.0f)), GetY() + l_Y + 15, l_ColorMin, l_ColorMax);
+                    RenderUtil.drawGradientRect(x, GetY() + y, x + (GetWidth() * (armorBarPct / 100.0f)), GetY() + y + 15, colorMin, colorMax);
 
-                    mc.getRenderItem().renderItemAndEffectIntoGUI(l_Stack, (int) l_X, (int) GetY() + l_Y);
-                    //    mc.getRenderItem().renderItemOverlays(mc.fontRenderer, l_Stack, l_X, (int)GetY() + l_Y); - enable if you want normal bar to show, but it looks worse
+                    mc.getRenderItem().renderItemAndEffectIntoGUI(stack, (int) x, (int) GetY() + y);
+                    //    mc.getRenderItem().renderItemOverlays(mc.fontRenderer, stack, x, (int)GetY() + y); - enable if you want normal bar to show, but it looks worse
 
-                    String l_Durability = String.format("%s %s / %s", Formatter.format(l_ArmorBarPct) + "%", l_Stack.getMaxDamage() - l_Stack.getItemDamage(), l_Stack.getMaxDamage());
+                    String durability = String.format("%s %s / %s", Formatter.format(armorBarPct) + "%", stack.getMaxDamage() - stack.getItemDamage(), stack.getMaxDamage());
 
-                    l_X = GetX() + 18;
+                    x = GetX() + 18;
 
-                    RenderUtil.drawStringWithShadow(l_Durability, l_X, GetY() + l_Y + 2, 0xFFFFFF);
+                    RenderUtil.drawStringWithShadow(durability, x, GetY() + y + 2, 0xFFFFFF);
 
-                    l_Y += 15;
+                    y += 15;
                 }
 
                 this.SetWidth(100);
-                this.SetHeight(l_Y);
+                this.SetHeight(y);
                 break;
             case SimplePct:
 
-                float l_X = 0;
-                float l_TextX = 4;
-                for (int l_I = 0; l_I < l_Stacks.size(); ++l_I) {
-                    ItemStack l_Stack = l_Stacks.get(l_I);
+                float x = 0;
+                float textX = 4;
+                for (int i = 0; i < stacks.size(); ++i) {
+                    ItemStack stack = stacks.get(i);
 
-                    mc.getRenderItem().renderItemAndEffectIntoGUI(l_Stack, (int) (GetX() + l_X), (int) GetY() + 10);
-                    mc.getRenderItem().renderItemOverlays(mc.fontRenderer, l_Stack, (int) (GetX() + l_X), (int) GetY() + 10);
+                    mc.getRenderItem().renderItemAndEffectIntoGUI(stack, (int) (GetX() + x), (int) GetY() + 10);
+                    mc.getRenderItem().renderItemOverlays(mc.fontRenderer, stack, (int) (GetX() + x), (int) GetY() + 10);
 
                     Rainbow.OnRender();
-                    FontManager.Get().TWCenMt18.drawCenteredString(Formatter.format(GetPctFromStack(l_Stack)), GetX() + l_TextX, GetY(), l_Hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1);
+                    FontManager.Get().TWCenMt18.drawCenteredString(Formatter.format(GetPctFromStack(stack)), GetX() + textX, GetY(), hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1);
 
-                    l_X += 20;
+                    x += 20;
 
-                    if (l_I < l_Stacks.size() - 1) {
-                        float l_Pct = GetPctFromStack(l_Stacks.get(l_I + 1));
+                    if (i < stacks.size() - 1) {
+                        float pct = GetPctFromStack(stacks.get(i + 1));
 
-                        if (l_Pct == 100.0f)
-                            l_TextX += 22;
-                        else if (l_Pct >= 10.0)
-                            l_TextX += 21f;
+                        if (pct == 100.0f)
+                            textX += 22;
+                        else if (pct >= 10.0)
+                            textX += 21f;
                         else
-                            l_TextX += 25f;
+                            textX += 25f;
                     }
                 }
 

@@ -16,9 +16,9 @@ public class SalGuiIngame extends GuiIngameForge {
 
         ObfuscationReflectionHelper.setPrivateValue(GuiIngame.class, this, new SalGuiPlayerTabOverlay(mc, this), "field_175196_v");
 
-        ReliantChatModule l_Mod = (ReliantChatModule) ModuleManager.Get().GetMod(ReliantChatModule.class);
+        ReliantChatModule mod = (ReliantChatModule) ModuleManager.Get().GetMod(ReliantChatModule.class);
 
-        if (l_Mod != null && l_Mod.isEnabled()) l_Mod.Activate();
+        if (mod != null && mod.isEnabled()) mod.Activate();
     }
 
     @Override

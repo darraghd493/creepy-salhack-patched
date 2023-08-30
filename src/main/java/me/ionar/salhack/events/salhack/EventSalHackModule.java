@@ -3,13 +3,11 @@ package me.ionar.salhack.events.salhack;
 import me.ionar.salhack.events.MinecraftEvent;
 import me.ionar.salhack.module.Module;
 
-public class EventSalHackModule extends MinecraftEvent
-{
+public class EventSalHackModule extends MinecraftEvent {
     public final Module Mod;
-    
-    public EventSalHackModule(final Module p_Mod)
-    {
+
+    public EventSalHackModule(final Module mod1) {
         super();
-        Mod = p_Mod;
+        Mod = mod1;
     }
 }

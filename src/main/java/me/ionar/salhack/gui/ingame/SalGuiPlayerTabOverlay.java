@@ -1,14 +1,7 @@
 package me.ionar.salhack.gui.ingame;
 
-import java.util.Comparator;
-import java.util.List;
-
-import javax.annotation.Nullable;
-
 import com.mojang.authlib.GameProfile;
-
 import me.ionar.salhack.main.SalHack;
-import me.ionar.salhack.managers.FriendManager;
 import me.ionar.salhack.module.ui.HudModule;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -26,6 +19,9 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.GameType;
 
+import javax.annotation.Nullable;
+import java.util.List;
+
 public class SalGuiPlayerTabOverlay extends GuiPlayerTabOverlay {
 
     public SalGuiPlayerTabOverlay(Minecraft mcIn, GuiIngame guiIngameIn) {
@@ -35,7 +31,7 @@ public class SalGuiPlayerTabOverlay extends GuiPlayerTabOverlay {
     @Override
     public void renderPlayerlist(int width, Scoreboard scoreboardIn, @Nullable ScoreObjective scoreObjectiveIn) {
         NetHandlerPlayClient nethandlerplayclient = this.mc.player.connection;
-        List<NetworkPlayerInfo> list = ENTRY_ORDERING.<NetworkPlayerInfo>sortedCopy(nethandlerplayclient.getPlayerInfoMap());
+        List<NetworkPlayerInfo> list = ENTRY_ORDERING.sortedCopy(nethandlerplayclient.getPlayerInfoMap());
         int i = 0;
         int j = 0;
 
@@ -159,12 +155,12 @@ public class SalGuiPlayerTabOverlay extends GuiPlayerTabOverlay {
                 if (networkplayerinfo1.getGameType() == GameType.SPECTATOR) {
                     this.mc.fontRenderer.drawStringWithShadow(TextFormatting.ITALIC + s4, (float) j2, (float) k2, -1862270977);
                 } else {
-                    int l_Color = -1;
+                    int color = -1;
 
-                    if (mc.player.getName().equalsIgnoreCase(s4)) l_Color = 0x2ACCED;
-                    else if (SalHack.GetFriendManager().IsFriend(s4)) l_Color = 0x64FF00;
+                    if (mc.player.getName().equalsIgnoreCase(s4)) color = 0x2ACCED;
+                    else if (SalHack.GetFriendManager().IsFriend(s4)) color = 0x64FF00;
 
-                    this.mc.fontRenderer.drawStringWithShadow(s4, (float) j2, (float) k2, l_Color);
+                    this.mc.fontRenderer.drawStringWithShadow(s4, (float) j2, (float) k2, color);
                 }
 
                 if (scoreObjectiveIn != null && networkplayerinfo1.getGameType() != GameType.SPECTATOR) {
@@ -192,7 +188,7 @@ public class SalGuiPlayerTabOverlay extends GuiPlayerTabOverlay {
         }
     }
 
-    private void drawScoreboardValues(ScoreObjective objective, int p_175247_2_, String name, int p_175247_4_, int p_175247_5_, NetworkPlayerInfo info) {
+    private void drawScoreboardValues(ScoreObjective objective, int a175247_2_, String name, int a175247_4_, int a175247_5_, NetworkPlayerInfo info) {
         int i = objective.getScoreboard().getOrCreateScore(name, objective).getScorePoints();
 
         if (objective.getRenderType() == IScoreCriteria.EnumRenderType.HEARTS) {
@@ -201,10 +197,10 @@ public class SalGuiPlayerTabOverlay extends GuiPlayerTabOverlay {
             if (this.lastTimeOpened == info.getRenderVisibilityId()) {
                 if (i < info.getLastHealth()) {
                     info.setLastHealthTime(Minecraft.getSystemTime());
-                    info.setHealthBlinkTime((long) (this.guiIngame.getUpdateCounter() + 20));
+                    info.setHealthBlinkTime(this.guiIngame.getUpdateCounter() + 20);
                 } else if (i > info.getLastHealth()) {
                     info.setLastHealthTime(Minecraft.getSystemTime());
-                    info.setHealthBlinkTime((long) (this.guiIngame.getUpdateCounter() + 10));
+                    info.setHealthBlinkTime(this.guiIngame.getUpdateCounter() + 10);
                 }
             }
 
@@ -221,49 +217,49 @@ public class SalGuiPlayerTabOverlay extends GuiPlayerTabOverlay {
             boolean flag = info.getHealthBlinkTime() > (long) this.guiIngame.getUpdateCounter() && (info.getHealthBlinkTime() - (long) this.guiIngame.getUpdateCounter()) / 3L % 2L == 1L;
 
             if (j > 0) {
-                float f = Math.min((float) (p_175247_5_ - p_175247_4_ - 4) / (float) k, 9.0F);
+                float f = Math.min((float) (a175247_5_ - a175247_4_ - 4) / (float) k, 9.0F);
 
                 if (f > 3.0F) {
                     for (int l = j; l < k; ++l) {
-                        this.drawTexturedModalRect((float) p_175247_4_ + (float) l * f, (float) p_175247_2_, flag ? 25 : 16, 0, 9, 9);
+                        this.drawTexturedModalRect((float) a175247_4_ + (float) l * f, (float) a175247_2_, flag ? 25 : 16, 0, 9, 9);
                     }
 
                     for (int j1 = 0; j1 < j; ++j1) {
-                        this.drawTexturedModalRect((float) p_175247_4_ + (float) j1 * f, (float) p_175247_2_, flag ? 25 : 16, 0, 9, 9);
+                        this.drawTexturedModalRect((float) a175247_4_ + (float) j1 * f, (float) a175247_2_, flag ? 25 : 16, 0, 9, 9);
 
                         if (flag) {
                             if (j1 * 2 + 1 < info.getDisplayHealth()) {
-                                this.drawTexturedModalRect((float) p_175247_4_ + (float) j1 * f, (float) p_175247_2_, 70, 0, 9, 9);
+                                this.drawTexturedModalRect((float) a175247_4_ + (float) j1 * f, (float) a175247_2_, 70, 0, 9, 9);
                             }
 
                             if (j1 * 2 + 1 == info.getDisplayHealth()) {
-                                this.drawTexturedModalRect((float) p_175247_4_ + (float) j1 * f, (float) p_175247_2_, 79, 0, 9, 9);
+                                this.drawTexturedModalRect((float) a175247_4_ + (float) j1 * f, (float) a175247_2_, 79, 0, 9, 9);
                             }
                         }
 
                         if (j1 * 2 + 1 < i) {
-                            this.drawTexturedModalRect((float) p_175247_4_ + (float) j1 * f, (float) p_175247_2_, j1 >= 10 ? 160 : 52, 0, 9, 9);
+                            this.drawTexturedModalRect((float) a175247_4_ + (float) j1 * f, (float) a175247_2_, j1 >= 10 ? 160 : 52, 0, 9, 9);
                         }
 
                         if (j1 * 2 + 1 == i) {
-                            this.drawTexturedModalRect((float) p_175247_4_ + (float) j1 * f, (float) p_175247_2_, j1 >= 10 ? 169 : 61, 0, 9, 9);
+                            this.drawTexturedModalRect((float) a175247_4_ + (float) j1 * f, (float) a175247_2_, j1 >= 10 ? 169 : 61, 0, 9, 9);
                         }
                     }
                 } else {
                     float f1 = MathHelper.clamp((float) i / 20.0F, 0.0F, 1.0F);
                     int i1 = (int) ((1.0F - f1) * 255.0F) << 16 | (int) (f1 * 255.0F) << 8;
-                    String s = "" + (float) i / 2.0F;
+                    String s = String.valueOf((float) i / 2.0F);
 
-                    if (p_175247_5_ - this.mc.fontRenderer.getStringWidth(s + "hp") >= p_175247_4_) {
+                    if (a175247_5_ - this.mc.fontRenderer.getStringWidth(s + "hp") >= a175247_4_) {
                         s = s + "hp";
                     }
 
-                    this.mc.fontRenderer.drawStringWithShadow(s, (float) ((p_175247_5_ + p_175247_4_) / 2 - this.mc.fontRenderer.getStringWidth(s) / 2), (float) p_175247_2_, i1);
+                    this.mc.fontRenderer.drawStringWithShadow(s, (float) ((a175247_5_ + a175247_4_) / 2 - this.mc.fontRenderer.getStringWidth(s) / 2), (float) a175247_2_, i1);
                 }
             }
         } else {
-            String s1 = TextFormatting.YELLOW + "" + i;
-            this.mc.fontRenderer.drawStringWithShadow(s1, (float) (p_175247_5_ - this.mc.fontRenderer.getStringWidth(s1)), (float) p_175247_2_, 16777215);
+            String s1 = TextFormatting.YELLOW + String.valueOf(i);
+            this.mc.fontRenderer.drawStringWithShadow(s1, (float) (a175247_5_ - this.mc.fontRenderer.getStringWidth(s1)), (float) a175247_2_, 16777215);
         }
     }
 

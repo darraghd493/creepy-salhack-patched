@@ -26,17 +26,17 @@ public class ManualDupeModule extends Module {
 
         super.onEnable();
 
-        Entity l_Entity = mc.world.loadedEntityList.stream()
+        Entity entity = mc.world.loadedEntityList.stream()
                 .filter(this::isValidEntity)
-                .min(Comparator.comparing(p_Entity -> mc.player.getDistance(p_Entity)))
+                .min(Comparator.comparing(entity1 -> mc.player.getDistance(entity1)))
                 .orElse(null);
 
-        if (mc.currentScreen instanceof GuiScreenHorseInventory && l_Entity instanceof AbstractChestHorse && mc.player.getRidingEntity() != null) {
-            AbstractChestHorse abstractChestHorse = (AbstractChestHorse) l_Entity;
+        if (mc.currentScreen instanceof GuiScreenHorseInventory && entity instanceof AbstractChestHorse && mc.player.getRidingEntity() != null) {
+            AbstractChestHorse abstractChestHorse = (AbstractChestHorse) entity;
 
             if (abstractChestHorse.hasChest()) {
                 noBypass = true;
-                mc.player.connection.sendPacket(new CPacketUseEntity(l_Entity, EnumHand.MAIN_HAND, l_Entity.getPositionVector()));
+                mc.player.connection.sendPacket(new CPacketUseEntity(entity, EnumHand.MAIN_HAND, entity.getPositionVector()));
                 noBypass = false;
                 toggle();
             }
@@ -47,8 +47,8 @@ public class ManualDupeModule extends Module {
 
     private boolean isValidEntity(Entity entity) {
         if (entity instanceof AbstractChestHorse) {
-            AbstractChestHorse l_AbstractChestHorse = (AbstractChestHorse) entity;
-            return !l_AbstractChestHorse.isChild() && l_AbstractChestHorse.isTame();
+            AbstractChestHorse abstractChestHorse = (AbstractChestHorse) entity;
+            return !abstractChestHorse.isChild() && abstractChestHorse.isTame();
         }
         return false;
     }

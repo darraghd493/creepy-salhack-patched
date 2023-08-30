@@ -1,15 +1,9 @@
 package me.ionar.salhack.module.render;
 
-import static me.ionar.salhack.util.render.ESPUtil.RenderOutline;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import me.ionar.salhack.events.player.EventPlayerUpdate;
 import me.ionar.salhack.events.render.RenderEvent;
 import me.ionar.salhack.module.Module;
 import me.ionar.salhack.module.Value;
-import me.ionar.salhack.util.render.RenderUtil;
 import me.zero.alpine.fork.listener.EventHandler;
 import me.zero.alpine.fork.listener.Listener;
 import net.minecraft.client.renderer.GlStateManager;
@@ -22,56 +16,48 @@ import net.minecraft.tileentity.TileEntityShulkerBox;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
-public class StorageESPModule extends Module
-{
-    public final Value<Boolean> EnderChests = new Value<Boolean>("EnderChests", new String[] { "S" }, "Highlights EnderChests", true);
-    public final Value<Boolean> Chests = new Value<Boolean>("Chests", new String[] { "S" }, "Highlights Chests", true);
-    public final Value<Boolean> Shulkers = new Value<Boolean>("Shulkers", new String[] { "S" }, "Highlights Shulkers", true);
+import java.util.ArrayList;
+import java.util.List;
 
-    public StorageESPModule()
-    {
-        super("StorageESP", new String[] {""}, "Highlights different kind of storages", "NONE", -1, ModuleType.RENDER);
-    }
-
+public class StorageESPModule extends Module {
+    public final Value<Boolean> EnderChests = new Value<Boolean>("EnderChests", new String[]{"S"}, "Highlights EnderChests", true);
+    public final Value<Boolean> Chests = new Value<Boolean>("Chests", new String[]{"S"}, "Highlights Chests", true);
+    public final Value<Boolean> Shulkers = new Value<Boolean>("Shulkers", new String[]{"S"}, "Highlights Shulkers", true);
     public final List<StorageBlockPos> Storages = new ArrayList<>();
-    private ICamera camera = new Frustum();
-
+    private final ICamera camera = new Frustum();
     @EventHandler
-    private Listener<EventPlayerUpdate> OnPlayerUpdate = new Listener<>(p_Event ->
+    private final Listener<EventPlayerUpdate> OnPlayerUpdate = new Listener<>(event ->
     {
         Storages.clear();
 
-        mc.world.loadedTileEntityList.forEach(p_Tile ->
+        mc.world.loadedTileEntityList.forEach(tile ->
         {
-            if (p_Tile instanceof TileEntityEnderChest && EnderChests.getValue())
-                Storages.add(new StorageBlockPos(p_Tile.getPos().getX(), p_Tile.getPos().getY(), p_Tile.getPos().getZ(), StorageType.Ender));
-            else if (p_Tile instanceof TileEntityChest && Chests.getValue())
-                Storages.add(new StorageBlockPos(p_Tile.getPos().getX(), p_Tile.getPos().getY(), p_Tile.getPos().getZ(), StorageType.Chest));
-            else if (p_Tile instanceof TileEntityShulkerBox && Shulkers.getValue())
-                Storages.add(new StorageBlockPos(p_Tile.getPos().getX(), p_Tile.getPos().getY(), p_Tile.getPos().getZ(), StorageType.Shulker));
+            if (tile instanceof TileEntityEnderChest && EnderChests.getValue())
+                Storages.add(new StorageBlockPos(tile.getPos().getX(), tile.getPos().getY(), tile.getPos().getZ(), StorageType.Ender));
+            else if (tile instanceof TileEntityChest && Chests.getValue())
+                Storages.add(new StorageBlockPos(tile.getPos().getX(), tile.getPos().getY(), tile.getPos().getZ(), StorageType.Chest));
+            else if (tile instanceof TileEntityShulkerBox && Shulkers.getValue())
+                Storages.add(new StorageBlockPos(tile.getPos().getX(), tile.getPos().getY(), tile.getPos().getZ(), StorageType.Shulker));
         });
     });
-
     @EventHandler
-    private Listener<RenderEvent> OnRenderEvent = new Listener<>(p_Event ->
+    private final Listener<RenderEvent> OnRenderEvent = new Listener<>(event ->
     {
         if (mc.getRenderManager() == null || mc.getRenderManager().options == null)
             return;
 
-        new ArrayList<StorageBlockPos>(Storages).forEach(p_Pos ->
+        new ArrayList<StorageBlockPos>(Storages).forEach(pos ->
         {
-            final AxisAlignedBB bb = new AxisAlignedBB(p_Pos.getX() - mc.getRenderManager().viewerPosX, p_Pos.getY() - mc.getRenderManager().viewerPosY,
-                    p_Pos.getZ() - mc.getRenderManager().viewerPosZ, p_Pos.getX() + 1 - mc.getRenderManager().viewerPosX, p_Pos.getY() + 1 - mc.getRenderManager().viewerPosY,
-                    p_Pos.getZ() + 1 - mc.getRenderManager().viewerPosZ);
+            final AxisAlignedBB bb = new AxisAlignedBB(pos.getX() - mc.getRenderManager().viewerPosX, pos.getY() - mc.getRenderManager().viewerPosY,
+                    pos.getZ() - mc.getRenderManager().viewerPosZ, pos.getX() + 1 - mc.getRenderManager().viewerPosX, pos.getY() + 1 - mc.getRenderManager().viewerPosY,
+                    pos.getZ() + 1 - mc.getRenderManager().viewerPosZ);
 
             camera.setPosition(mc.getRenderViewEntity().posX, mc.getRenderViewEntity().posY, mc.getRenderViewEntity().posZ);
 
             if (camera.isBoundingBoxInFrustum(new AxisAlignedBB(bb.minX + mc.getRenderManager().viewerPosX, bb.minY + mc.getRenderManager().viewerPosY, bb.minZ + mc.getRenderManager().viewerPosZ,
-                    bb.maxX + mc.getRenderManager().viewerPosX, bb.maxY + mc.getRenderManager().viewerPosY, bb.maxZ + mc.getRenderManager().viewerPosZ)))
-            {
+                    bb.maxX + mc.getRenderManager().viewerPosX, bb.maxY + mc.getRenderManager().viewerPosY, bb.maxZ + mc.getRenderManager().viewerPosZ))) {
                 GlStateManager.pushMatrix();
-                switch (p_Pos.GetType())
-                {
+                switch (pos.GetType()) {
                     case Chest:
                         RenderGlobal.drawBoundingBox(bb.minX, bb.minY, bb.minZ, bb.maxX, bb.maxY, bb.maxZ, 0.94f, 1.0f, 0f, 0.6f);
                         break;
@@ -89,27 +75,27 @@ public class StorageESPModule extends Module
             }
         });
     });
-    
-    public enum StorageType
-    {
+
+    public StorageESPModule() {
+        super("StorageESP", new String[]{""}, "Highlights different kind of storages", "NONE", -1, ModuleType.RENDER);
+    }
+
+    public enum StorageType {
         Chest,
         Shulker,
         Ender,
     }
-    
-    public class StorageBlockPos extends BlockPos
-    {
+
+    public class StorageBlockPos extends BlockPos {
         public StorageType Type;
 
-        public StorageBlockPos(int x, int y, int z, StorageType p_Type)
-        {
+        public StorageBlockPos(int x, int y, int z, StorageType type) {
             super(x, y, z);
-            
-            Type = p_Type;
+
+            Type = type;
         }
-        
-        public StorageType GetType()
-        {
+
+        public StorageType GetType() {
             return Type;
         }
     }

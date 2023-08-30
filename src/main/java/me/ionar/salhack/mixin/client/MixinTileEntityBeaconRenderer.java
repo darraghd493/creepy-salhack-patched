@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinTileEntityBeaconRenderer {
     @Inject(method = "render", at = @At("INVOKE"), cancellable = true)
     private void renderBeacon(TileEntityBeacon te, double x, double y, double z, float partialTicks, int destroyStage, float alpha, CallbackInfo ci) {
-        EventRenderBeacon l_Event = new EventRenderBeacon();
-        SalHackMod.EVENT_BUS.post(l_Event);
-        if (l_Event.isCancelled()) ci.cancel();
+        EventRenderBeacon event = new EventRenderBeacon();
+        SalHackMod.EVENT_BUS.post(event);
+        if (event.isCancelled()) ci.cancel();
     }
 }

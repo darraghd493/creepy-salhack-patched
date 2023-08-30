@@ -1,10 +1,9 @@
 package me.ionar.salhack.gui.click.effects;
 
-import java.util.Random;
-
 import me.ionar.salhack.util.render.RenderUtil;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
+
+import java.util.Random;
 
 public class Snow {
     private int _x;

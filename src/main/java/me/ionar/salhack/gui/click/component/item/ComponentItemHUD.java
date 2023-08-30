@@ -2,52 +2,44 @@ package me.ionar.salhack.gui.click.component.item;
 
 import me.ionar.salhack.gui.click.component.listeners.ComponentItemListener;
 import me.ionar.salhack.gui.hud.HudComponentItem;
-import me.ionar.salhack.module.Module;
 import me.ionar.salhack.util.render.RenderUtil;
 
-public class ComponentItemHUD extends ComponentItem
-{
+public class ComponentItemHUD extends ComponentItem {
     final HudComponentItem Mod;
-    
-    public ComponentItemHUD(HudComponentItem p_Mod, String p_DisplayText, String p_Description, int p_Flags, int p_State, ComponentItemListener p_Listener, float p_Width, float p_Height)
-    {
-        super(p_DisplayText, p_Description, p_Flags, p_State, p_Listener, p_Width, p_Height);
-        Mod = p_Mod;
+
+    public ComponentItemHUD(HudComponentItem mod1, String displayText, String description1, int flags, int state, ComponentItemListener listener, float width1, float height1) {
+        super(displayText, description1, flags, state, listener, width1, height1);
+        Mod = mod1;
     }
 
     @Override
-    public String GetDisplayText()
-    {
-        String l_DisplayText = Mod.GetDisplayName();
-        
-        float l_Width = RenderUtil.getStringWidth(l_DisplayText);
-        
-        while (l_Width > GetWidth())
-        {
-            l_Width = RenderUtil.getStringWidth(l_DisplayText);
-            l_DisplayText = l_DisplayText.substring(0, l_DisplayText.length()-1);
+    public String GetDisplayText() {
+        String displayText = Mod.GetDisplayName();
+
+        float width = RenderUtil.getStringWidth(displayText);
+
+        while (width > GetWidth()) {
+            width = RenderUtil.getStringWidth(displayText);
+            displayText = displayText.substring(0, displayText.length() - 1);
         }
-        
-        return l_DisplayText;
+
+        return displayText;
     }
 
     @Override
-    public String GetDescription()
-    {
+    public String GetDescription() {
         return "";
     }
-    
+
     @Override
-    public void Update()
-    {
+    public void Update() {
     }
-    
+
     @Override
-    public boolean HasState(int p_State)
-    {
-        if ((p_State & ComponentItem.Clicked) != 0)
+    public boolean HasState(int state) {
+        if ((state & ComponentItem.Clicked) != 0)
             return !Mod.IsHidden();
-        
-        return super.HasState(p_State);
+
+        return super.HasState(state);
     }
 }

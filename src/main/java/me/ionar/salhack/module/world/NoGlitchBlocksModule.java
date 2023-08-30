@@ -1,52 +1,38 @@
 package me.ionar.salhack.module.world;
 
-import me.ionar.salhack.events.network.EventNetworkPacketEvent;
 import me.ionar.salhack.events.player.EventPlayerDestroyBlock;
-import me.ionar.salhack.events.render.EventRenderRainStrength;
 import me.ionar.salhack.events.world.EventWorldSetBlockState;
 import me.ionar.salhack.module.Module;
 import me.ionar.salhack.module.Value;
 import me.zero.alpine.fork.listener.EventHandler;
 import me.zero.alpine.fork.listener.Listener;
-import net.minecraft.network.play.server.SPacketBlockBreakAnim;
-import net.minecraft.network.play.server.SPacketBlockChange;
-import net.minecraft.network.play.server.SPacketMultiBlockChange;
 
-public class NoGlitchBlocksModule extends Module
-{
+public class NoGlitchBlocksModule extends Module {
     public final Value<Boolean> Destroy = new Value<Boolean>("Destroy", new String[]
-            { "destroy" }, "Syncs Destroying", true);
+            {"destroy"}, "Syncs Destroying", true);
     public final Value<Boolean> Place = new Value<Boolean>("Place", new String[]
-            { "placement" }, "Syncs placement.", true);
-
-    public NoGlitchBlocksModule()
-    {
-        super("NoGlitchBlocks", new String[]
-                { "AntiGhostBlocks" }, "Synchronizes client and server communication by canceling clientside destroy/place for blocks", "NONE", -1, ModuleType.WORLD);
-    }
-
-    /*@EventHandler
-    private Listener<EventNetworkPacketEvent> PacketEvent = new Listener<>(p_Event ->
-    {
-        if (p_Event.getPacket() instanceof SPacketBlockChange)
-        {
-            SPacketBlockChange l_Packet = (SPacketBlockChange)p_Event.getPacket();
-
-            SendMessage(String.format("%s %s", l_Packet.getBlockPosition().toString(), l_Packet.getBlockState().toString()));
-        }
-    });*/
-
+            {"placement"}, "Syncs placement.", true);
     @EventHandler
-    private Listener<EventPlayerDestroyBlock> OnPlayerDestroyBlock = new Listener<>(p_Event ->
+    private final Listener<EventPlayerDestroyBlock> OnPlayerDestroyBlock = new Listener<>(event ->
     {
         if (!Destroy.getValue())
             return;
         // Wait for server to process this, and send back a packet later.
-        p_Event.cancel();
+        event.cancel();
     });
 
+    /*@EventHandler
+    private Listener<EventNetworkPacketEvent> PacketEvent = new Listener<>(event ->
+    {
+        if (event.getPacket() instanceof SPacketBlockChange)
+        {
+            SPacketBlockChange packet = (SPacketBlockChange)event.getPacket();
+
+            SendMessage(String.format("%s %s", packet.getBlockPosition().toString(), packet.getBlockState().toString()));
+        }
+    });*/
     @EventHandler
-    private Listener<EventWorldSetBlockState> OnSetBlockState = new Listener<>(p_Event ->
+    private final Listener<EventWorldSetBlockState> OnSetBlockState = new Listener<>(event ->
     {
         if (!Place.getValue())
             return;
@@ -57,7 +43,12 @@ public class NoGlitchBlocksModule extends Module
          * this change. Flags can be OR-ed
          */
         /// Flag 3 is from the packet
-        if (p_Event.Flags != 3)
-            p_Event.cancel();
+        if (event.Flags != 3)
+            event.cancel();
     });
+
+    public NoGlitchBlocksModule() {
+        super("NoGlitchBlocks", new String[]
+                {"AntiGhostBlocks"}, "Synchronizes client and server communication by canceling clientside destroy/place for blocks", "NONE", -1, ModuleType.WORLD);
+    }
 }

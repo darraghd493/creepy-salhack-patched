@@ -1,7 +1,5 @@
 package me.ionar.salhack.gui.click.component.item;
 
-import org.lwjgl.input.Keyboard;
-
 import me.ionar.salhack.gui.click.component.listeners.ComponentItemListener;
 import me.ionar.salhack.main.SalHack;
 import me.ionar.salhack.module.Module;
@@ -9,141 +7,122 @@ import me.ionar.salhack.util.Timer;
 import me.ionar.salhack.util.render.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import org.lwjgl.input.Keyboard;
 
-public class ComponentItemKeybind extends ComponentItem
-{
-    public boolean Listening = false;
+public class ComponentItemKeybind extends ComponentItem {
     final Module Mod;
+    public boolean Listening = false;
     private String LastKey = "";
-    private Timer timer = new Timer();
+    private final Timer timer = new Timer();
     private String DisplayString = "";
-    
-    public ComponentItemKeybind(Module p_Mod, String p_DisplayText, String p_Description, int p_Flags, int p_State, ComponentItemListener p_Listener, float p_Width, float p_Height)
-    {
-        super(p_DisplayText, p_Description, p_Flags, p_State, p_Listener, p_Width, p_Height);
-        Mod = p_Mod;
+
+    public ComponentItemKeybind(Module mod1, String displayText, String description1, int flags, int state, ComponentItemListener listener, float width1, float height1) {
+        super(displayText, description1, flags, state, listener, width1, height1);
+        Mod = mod1;
 
         Flags |= ComponentItem.RectDisplayAlways;
     }
 
     @Override
-    public String GetDisplayText()
-    {
+    public String GetDisplayText() {
         if (Listening)
             return "Press a Key...";
 
-        String l_DisplayText = "Keybind " + Mod.getKey();
-        
-        if (HasState(ComponentItem.Hovered) && RenderUtil.getStringWidth(l_DisplayText) > GetWidth() - 3)
-        {
+        String displayText = "Keybind " + Mod.getKey();
+
+        if (HasState(ComponentItem.Hovered) && RenderUtil.getStringWidth(displayText) > GetWidth() - 3) {
             if (DisplayString == null)
                 DisplayString = "Keybind " + Mod.getKey() + " ";
 
-            l_DisplayText = DisplayString;
-            float l_Width = RenderUtil.getStringWidth(l_DisplayText);
+            displayText = DisplayString;
+            float width = RenderUtil.getStringWidth(displayText);
 
-            while (l_Width > GetWidth() - 3)
-            {
-                l_Width = RenderUtil.getStringWidth(l_DisplayText);
-                l_DisplayText = l_DisplayText.substring(0, l_DisplayText.length() - 1);
+            while (width > GetWidth() - 3) {
+                width = RenderUtil.getStringWidth(displayText);
+                displayText = displayText.substring(0, displayText.length() - 1);
             }
 
-            if (timer.passed(75) && DisplayString.length() > 0)
-            {
-                String l_FirstChar = String.valueOf(DisplayString.charAt(0));
+            if (timer.passed(75) && DisplayString.length() > 0) {
+                String firstChar = String.valueOf(DisplayString.charAt(0));
 
-                DisplayString = DisplayString.substring(1) + l_FirstChar;
+                DisplayString = DisplayString.substring(1) + firstChar;
 
                 timer.reset();
             }
 
-            return l_DisplayText;
-        }
-        else
+            return displayText;
+        } else
             DisplayString = null;
 
-        float l_Width = RenderUtil.getStringWidth(l_DisplayText);
+        float width = RenderUtil.getStringWidth(displayText);
 
-        while (l_Width > GetWidth() - 3)
-        {
-            l_Width = RenderUtil.getStringWidth(l_DisplayText);
-            l_DisplayText = l_DisplayText.substring(0, l_DisplayText.length() - 1);
+        while (width > GetWidth() - 3) {
+            width = RenderUtil.getStringWidth(displayText);
+            displayText = displayText.substring(0, displayText.length() - 1);
         }
 
-        return l_DisplayText;
+        return displayText;
     }
 
     @Override
-    public String GetDescription()
-    {
+    public String GetDescription() {
         return "Sets the key of the Module: " + Mod.getDisplayName();
     }
-    
+
     @Override
-    public void OnMouseClick(int p_MouseX, int p_MouseY, int p_MouseButton)
-    {
-        super.OnMouseClick(p_MouseX, p_MouseY, p_MouseButton);
-        
+    public void OnMouseClick(int mouseX, int mouseY, int mouseButton) {
+        super.OnMouseClick(mouseX, mouseY, mouseButton);
+
         LastKey = "";
-        
-        if (p_MouseButton == 0)
-        	Listening = !Listening;
-        else if (p_MouseButton == 1)
-        	Listening = false;
-        else if (p_MouseButton == 2)
-        {
-        	Mod.setKey("NONE");
-        	SalHack.SendMessage("Unbinded the module: " + Mod.getDisplayName());
-        	Listening = false;
+
+        if (mouseButton == 0)
+            Listening = !Listening;
+        else if (mouseButton == 1)
+            Listening = false;
+        else if (mouseButton == 2) {
+            Mod.setKey("NONE");
+            SalHack.SendMessage("Unbinded the module: " + Mod.getDisplayName());
+            Listening = false;
         }
     }
 
     @Override
-    public void keyTyped(char typedChar, int keyCode)
-    {
-        if (Listening)
-        {
-            String l_Key = String.valueOf(Keyboard.getKeyName(keyCode)).toUpperCase();
+    public void keyTyped(char typedChar, int keyCode) {
+        if (Listening) {
+            String key = String.valueOf(Keyboard.getKeyName(keyCode)).toUpperCase();
 
-            if (l_Key.length() < 1)
-            {
+            if (key.length() < 1) {
                 Listening = false;
                 return;
             }
-            
-            if (l_Key.equals("END") || l_Key.equals("BACK") || l_Key.equals("DELETE"))
-            {
-            	l_Key = "NONE";
+
+            if (key.equals("END") || key.equals("BACK") || key.equals("DELETE")) {
+                key = "NONE";
             }
-            
-            if (!l_Key.equals("NONE") && !l_Key.contains("CONTROL") && !l_Key.contains("SHIFT") && !l_Key.contains("MENU"))
-            {
+
+            if (!key.equals("NONE") && !key.contains("CONTROL") && !key.contains("SHIFT") && !key.contains("MENU")) {
                 if (GuiScreen.isAltKeyDown())
-                    l_Key = (Keyboard.isKeyDown(56) ? "LMENU" : "RMENU") + " + " + l_Key;
-                else if (GuiScreen.isCtrlKeyDown())
-                {
-                    String l_CtrlKey = "";
-                    
+                    key = (Keyboard.isKeyDown(56) ? "LMENU" : "RMENU") + " + " + key;
+                else if (GuiScreen.isCtrlKeyDown()) {
+                    String ctrlKey = "";
+
                     if (Minecraft.IS_RUNNING_ON_MAC)
-                        l_CtrlKey = Keyboard.isKeyDown(219) ? "LCONTROL" : "RCONTROL";
+                        ctrlKey = Keyboard.isKeyDown(219) ? "LCONTROL" : "RCONTROL";
                     else
-                        l_CtrlKey = Keyboard.isKeyDown(29) ? "LCONTROL" : "RCONTROL";
-                    
-                    l_Key = l_CtrlKey + " + " + l_Key;
-                }
-                else if (GuiScreen.isShiftKeyDown())
-                    l_Key = (Keyboard.isKeyDown(42) ? "LSHIFT" : "RSHIFT") + " + " + l_Key;
+                        ctrlKey = Keyboard.isKeyDown(29) ? "LCONTROL" : "RCONTROL";
+
+                    key = ctrlKey + " + " + key;
+                } else if (GuiScreen.isShiftKeyDown())
+                    key = (Keyboard.isKeyDown(42) ? "LSHIFT" : "RSHIFT") + " + " + key;
             }
-            
-            LastKey = l_Key;
+
+            LastKey = key;
         }
     }
-    
+
     @Override
-    public void Update()
-    {
-        if (!Keyboard.getEventKeyState() && Listening && LastKey != "")
-        {
+    public void Update() {
+        if (!Keyboard.getEventKeyState() && Listening && LastKey != "") {
             Mod.setKey(LastKey);
             SalHack.SendMessage("Set the key of " + Mod.getDisplayName() + " to " + LastKey);
             Listening = false;

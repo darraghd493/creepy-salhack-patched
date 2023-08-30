@@ -1,5 +1,25 @@
 package me.ionar.salhack.gui.click;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import me.ionar.salhack.gui.SalGuiScreen;
+import me.ionar.salhack.gui.click.component.MenuComponent;
+import me.ionar.salhack.gui.click.component.menus.mods.MenuComponentModList;
+import me.ionar.salhack.gui.click.component.menus.mods.MenuComponentPresetsList;
+import me.ionar.salhack.gui.click.effects.Snow;
+import me.ionar.salhack.managers.ImageManager;
+import me.ionar.salhack.managers.PresetsManager;
+import me.ionar.salhack.module.Module.ModuleType;
+import me.ionar.salhack.module.ui.ClickGuiModule;
+import me.ionar.salhack.module.ui.ColorsModule;
+import me.ionar.salhack.util.imgs.SalDynamicTexture;
+import me.ionar.salhack.util.render.RenderUtil;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
@@ -11,82 +31,59 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import me.ionar.salhack.gui.SalGuiScreen;
-import me.ionar.salhack.gui.click.component.*;
-import me.ionar.salhack.gui.click.component.menus.mods.MenuComponentModList;
-import me.ionar.salhack.gui.click.component.menus.mods.MenuComponentPresetsList;
-import me.ionar.salhack.gui.click.effects.Snow;
-import me.ionar.salhack.main.SalHack;
-import me.ionar.salhack.managers.ImageManager;
-import me.ionar.salhack.managers.PresetsManager;
-import me.ionar.salhack.module.Module.ModuleType;
-import me.ionar.salhack.module.ui.ClickGuiModule;
-import me.ionar.salhack.module.ui.ColorsModule;
-import me.ionar.salhack.util.imgs.SalDynamicTexture;
-import me.ionar.salhack.util.render.RenderUtil;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
-
 public class ClickGuiScreen extends SalGuiScreen {
-    private ArrayList<MenuComponent> MenuComponents = new ArrayList<MenuComponent>();
-    private SalDynamicTexture Watermark = ImageManager.Get().GetDynamicTexture("SalHackWatermark");
-    private SalDynamicTexture BlueBlur = ImageManager.Get().GetDynamicTexture("BlueBlur");
-    private ArrayList<Snow> _snowList = new ArrayList<Snow>();
+    private final ArrayList<MenuComponent> MenuComponents = new ArrayList<MenuComponent>();
+    private final SalDynamicTexture Watermark = ImageManager.Get().GetDynamicTexture("SalHackWatermark");
+    private final SalDynamicTexture BlueBlur = ImageManager.Get().GetDynamicTexture("BlueBlur");
+    private final ArrayList<Snow> _snowList = new ArrayList<Snow>();
 
     private float OffsetY = 0;
-    private ClickGuiModule ClickGuiMod;
+    private final ClickGuiModule ClickGuiMod;
 
-    public ClickGuiScreen(ClickGuiModule p_Mod, ColorsModule p_Colors) {
+    public ClickGuiScreen(ClickGuiModule mod1, ColorsModule colors) {
         // COMBAT, EXPLOIT, MOVEMENT, RENDER, WORLD, MISC, HIDDEN, UI
-        MenuComponents.add(new MenuComponentModList("Combat", ModuleType.COMBAT, 10, 3, "Shield", p_Colors, p_Mod));
-        MenuComponents.add(new MenuComponentModList("Exploit", ModuleType.EXPLOIT, 120, 3, "skull", p_Colors, p_Mod));
+        MenuComponents.add(new MenuComponentModList("Combat", ModuleType.COMBAT, 10, 3, "Shield", colors, mod1));
+        MenuComponents.add(new MenuComponentModList("Exploit", ModuleType.EXPLOIT, 120, 3, "skull", colors, mod1));
         // MenuComponents.add(new MenuComponentModList("Hidden", ModuleType.HIDDEN, 320,
         // 3));
-        MenuComponents.add(new MenuComponentModList("Misc", ModuleType.MISC, 230, 3, "questionmark", p_Colors, p_Mod));
-        MenuComponents.add(new MenuComponentModList("Movement", ModuleType.MOVEMENT, 340, 3, "Arrow", p_Colors, p_Mod));
-        MenuComponents.add(new MenuComponentModList("Render", ModuleType.RENDER, 450, 3, "Eye", p_Colors, p_Mod));
-        MenuComponents.add(new MenuComponentModList("UI", ModuleType.UI, 560, 3, "mouse", p_Colors, p_Mod));
-        MenuComponents.add(new MenuComponentModList("World", ModuleType.WORLD, 670, 3, "blockimg", p_Colors, p_Mod));
-        //   MenuComponents.add(new MenuComponentModList("Bot", ModuleType.BOT, 780, 3, "robotimg", p_Colors));
-        MenuComponents.add(new MenuComponentModList("Schematica", ModuleType.SCHEMATICA, 10, 247, "robotimg", p_Colors, p_Mod));
-        MenuComponents.add(new MenuComponentModList("Chat", ModuleType.CHAT, 120, 203, "Shield", p_Colors, p_Mod));
+        MenuComponents.add(new MenuComponentModList("Misc", ModuleType.MISC, 230, 3, "questionmark", colors, mod1));
+        MenuComponents.add(new MenuComponentModList("Movement", ModuleType.MOVEMENT, 340, 3, "Arrow", colors, mod1));
+        MenuComponents.add(new MenuComponentModList("Render", ModuleType.RENDER, 450, 3, "Eye", colors, mod1));
+        MenuComponents.add(new MenuComponentModList("UI", ModuleType.UI, 560, 3, "mouse", colors, mod1));
+        MenuComponents.add(new MenuComponentModList("World", ModuleType.WORLD, 670, 3, "blockimg", colors, mod1));
+        //   MenuComponents.add(new MenuComponentModList("Bot", ModuleType.BOT, 780, 3, "robotimg", colors));
+        MenuComponents.add(new MenuComponentModList("Schematica", ModuleType.SCHEMATICA, 10, 247, "robotimg", colors, mod1));
+        MenuComponents.add(new MenuComponentModList("Chat", ModuleType.CHAT, 120, 203, "Shield", colors, mod1));
 
         MenuComponentPresetsList presetList = null;
 
-        MenuComponents.add(presetList = new MenuComponentPresetsList("Presets", ModuleType.SCHEMATICA, 120, 170, "robotimg", p_Colors, p_Mod));
+        MenuComponents.add(presetList = new MenuComponentPresetsList("Presets", ModuleType.SCHEMATICA, 120, 170, "robotimg", colors, mod1));
 
         PresetsManager.Get().InitalizeGUIComponent(presetList);
 
-        ClickGuiMod = p_Mod;
+        ClickGuiMod = mod1;
 
         /// Load settings
-        for (MenuComponent l_Component : MenuComponents) {
-            File l_Exists = new File("SalHack/GUI/" + l_Component.GetDisplayName() + ".json");
-            if (!l_Exists.exists()) continue;
+        for (MenuComponent component : MenuComponents) {
+            File exists = new File("SalHack/GUI/" + component.GetDisplayName() + ".json");
+            if (!exists.exists()) continue;
 
             try {
                 // create Gson instance
                 Gson gson = new Gson();
 
                 // create a reader
-                Reader reader = Files.newBufferedReader(Paths.get("SalHack/GUI/" + l_Component.GetDisplayName() + ".json"));
+                Reader reader = Files.newBufferedReader(Paths.get("SalHack/GUI/" + component.GetDisplayName() + ".json"));
 
                 // convert JSON file to map
                 Map<?, ?> map = gson.fromJson(reader, Map.class);
 
                 for (Map.Entry<?, ?> entry : map.entrySet()) {
-                    String l_Key = (String) entry.getKey();
-                    String l_Value = (String) entry.getValue();
+                    String key = (String) entry.getKey();
+                    String value = (String) entry.getValue();
 
-                    if (l_Key.equals("PosX")) l_Component.SetX(Float.parseFloat(l_Value));
-                    else if (l_Key.equals("PosY")) l_Component.SetY(Float.parseFloat(l_Value));
+                    if (key.equals("PosX")) component.SetX(Float.parseFloat(value));
+                    else if (key.equals("PosY")) component.SetY(Float.parseFloat(value));
                 }
 
                 reader.close();
@@ -112,8 +109,8 @@ public class ClickGuiScreen extends SalGuiScreen {
 
     @Override
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        for (MenuComponent l_Menu : MenuComponents) {
-            if (l_Menu.MouseClicked(mouseX, mouseY, mouseButton, OffsetY)) break;
+        for (MenuComponent menu : MenuComponents) {
+            if (menu.MouseClicked(mouseX, mouseY, mouseButton, OffsetY)) break;
         }
 
         super.mouseClicked(mouseX, mouseY, mouseButton);
@@ -121,8 +118,8 @@ public class ClickGuiScreen extends SalGuiScreen {
 
     @Override
     public void mouseReleased(int mouseX, int mouseY, int state) {
-        for (MenuComponent l_Menu : MenuComponents) {
-            l_Menu.MouseReleased(mouseX, mouseY, state);
+        for (MenuComponent menu : MenuComponents) {
+            menu.MouseReleased(mouseX, mouseY, state);
         }
 
         super.mouseReleased(mouseX, mouseY, state);
@@ -130,8 +127,8 @@ public class ClickGuiScreen extends SalGuiScreen {
 
     @Override
     public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
-        for (MenuComponent l_Menu : MenuComponents) {
-            l_Menu.MouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+        for (MenuComponent menu : MenuComponents) {
+            menu.MouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
         }
 
         super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
@@ -167,15 +164,15 @@ public class ClickGuiScreen extends SalGuiScreen {
         GlStateManager.disableRescaleNormal();
         RenderHelper.disableStandardItemLighting();
 
-        MenuComponent l_LastHovered = null;
+        MenuComponent lastHovered = null;
 
-        for (MenuComponent l_Menu : MenuComponents)
-            if (l_Menu.Render(mouseX, mouseY, true, AllowsOverflow(), OffsetY)) l_LastHovered = l_Menu;
+        for (MenuComponent menu : MenuComponents)
+            if (menu.Render(mouseX, mouseY, true, AllowsOverflow(), OffsetY)) lastHovered = menu;
 
-        if (l_LastHovered != null) {
+        if (lastHovered != null) {
             /// Add to the back of the list for rendering
-            MenuComponents.remove(l_LastHovered);
-            MenuComponents.add(l_LastHovered);
+            MenuComponents.remove(lastHovered);
+            MenuComponents.add(lastHovered);
         }
 
         RenderHelper.enableGUIStandardItemLighting();
@@ -183,14 +180,14 @@ public class ClickGuiScreen extends SalGuiScreen {
         GlStateManager.enableRescaleNormal();
         GlStateManager.popMatrix();
 
-        int l_Scrolling = Mouse.getEventDWheel();
+        int scrolling = Mouse.getEventDWheel();
 
         /// up
-        if (l_Scrolling > 0) {
+        if (scrolling > 0) {
             OffsetY = Math.max(0, OffsetY - 1);
         }
         /// down
-        else if (l_Scrolling < 0) {
+        else if (scrolling < 0) {
             OffsetY = Math.min(100, OffsetY + 1);
         }
     }
@@ -199,8 +196,8 @@ public class ClickGuiScreen extends SalGuiScreen {
     public void keyTyped(char typedChar, int keyCode) throws IOException {
         super.keyTyped(typedChar, keyCode);
 
-        for (MenuComponent l_Menu : MenuComponents) {
-            l_Menu.keyTyped(typedChar, keyCode);
+        for (MenuComponent menu : MenuComponents) {
+            menu.keyTyped(typedChar, keyCode);
         }
     }
 
@@ -212,17 +209,17 @@ public class ClickGuiScreen extends SalGuiScreen {
 
         /// Save Settings
 
-        for (MenuComponent l_Component : MenuComponents) {
+        for (MenuComponent component : MenuComponents) {
             try {
                 GsonBuilder builder = new GsonBuilder();
 
                 Gson gson = builder.setPrettyPrinting().create();
 
-                Writer writer = Files.newBufferedWriter(Paths.get("SalHack/GUI/" + l_Component.GetDisplayName() + ".json"));
+                Writer writer = Files.newBufferedWriter(Paths.get("SalHack/GUI/" + component.GetDisplayName() + ".json"));
                 Map<String, String> map = new HashMap<>();
 
-                map.put("PosX", String.valueOf(l_Component.GetX()));
-                map.put("PosY", String.valueOf(l_Component.GetY()));
+                map.put("PosX", String.valueOf(component.GetX()));
+                map.put("PosY", String.valueOf(component.GetY()));
 
                 gson.toJson(map, writer);
                 writer.close();

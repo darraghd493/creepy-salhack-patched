@@ -15,141 +15,105 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemShulkerBox;
 import net.minecraft.item.ItemStack;
 
-public class ChestStealerModule extends Module
-{
+public class ChestStealerModule extends Module {
     public Value<Modes> Mode = new Value<Modes>("Mode", new String[]
-    { "M" }, "The mode for chest stealer", Modes.Steal);
+            {"M"}, "The mode for chest stealer", Modes.Steal);
     public Value<Float> Delay = new Value<Float>("Delay", new String[]
-    { "D" }, "Delay for each tick", 1f, 0f, 10f, 1f);
+            {"D"}, "Delay for each tick", 1f, 0f, 10f, 1f);
     public Value<Boolean> DepositShulkers = new Value<Boolean>("DepositShulkers", new String[]
-    { "S" }, "Only deposit shulkers", false);
+            {"S"}, "Only deposit shulkers", false);
     public Value<Boolean> EntityChests = new Value<Boolean>("EntityChests", new String[]
-    { "EC" }, "Take from entity chests", false);
+            {"EC"}, "Take from entity chests", false);
     public Value<Boolean> Shulkers = new Value<Boolean>("Shulkers", new String[]
-    { "EC" }, "Take from shulkers", false);
-
-    public enum Modes
-    {
-        Steal,
-        Store,
-        Drop,
-    }
-
-    public ChestStealerModule()
-    {
-        super("ChestStealer", new String[]
-        { "Chest" }, "Steals the contents from chests", "NONE", 0xDB5E24, ModuleType.MISC);
-    }
-
-    private Timer timer = new Timer();
-
-    @Override
-    public String getMetaData()
-    {
-        return Mode.getValue().toString();
-    }
-
+            {"EC"}, "Take from shulkers", false);
+    private final Timer timer = new Timer();
     @EventHandler
-    private Listener<EventPlayerUpdate> OnPlayerUpdate = new Listener<>(p_Event ->
+    private final Listener<EventPlayerUpdate> OnPlayerUpdate = new Listener<>(event ->
     {
         if (!timer.passed(Delay.getValue() * 100f))
             return;
 
         timer.reset();
 
-        if (mc.currentScreen instanceof GuiChest)
-        {
-            GuiChest l_Chest = (GuiChest) mc.currentScreen;
+        if (mc.currentScreen instanceof GuiChest) {
+            GuiChest chest = (GuiChest) mc.currentScreen;
 
-            for (int l_I = 0; l_I < l_Chest.lowerChestInventory.getSizeInventory(); ++l_I)
-            {
-                ItemStack l_Stack = l_Chest.lowerChestInventory.getStackInSlot(l_I);
+            for (int i = 0; i < chest.lowerChestInventory.getSizeInventory(); ++i) {
+                ItemStack stack = chest.lowerChestInventory.getStackInSlot(i);
 
-                if ((l_Stack.isEmpty() || l_Stack.getItem() == Items.AIR) && Mode.getValue() == Modes.Store)
-                {
-                    HandleStoring(l_Chest.inventorySlots.windowId, l_Chest.lowerChestInventory.getSizeInventory() - 9);
+                if ((stack.isEmpty() || stack.getItem() == Items.AIR) && Mode.getValue() == Modes.Store) {
+                    HandleStoring(chest.inventorySlots.windowId, chest.lowerChestInventory.getSizeInventory() - 9);
                     return;
                 }
 
-                if (Shulkers.getValue() && !(l_Stack.getItem() instanceof ItemShulkerBox))
-                    continue;
-                
-                if (l_Stack.isEmpty())
+                if (Shulkers.getValue() && !(stack.getItem() instanceof ItemShulkerBox))
                     continue;
 
-                switch (Mode.getValue())
-                {
+                if (stack.isEmpty())
+                    continue;
+
+                switch (Mode.getValue()) {
                     case Steal:
-                        mc.playerController.windowClick(l_Chest.inventorySlots.windowId, l_I, 0, ClickType.QUICK_MOVE, mc.player);
+                        mc.playerController.windowClick(chest.inventorySlots.windowId, i, 0, ClickType.QUICK_MOVE, mc.player);
                         return;
                     case Drop:
-                        mc.playerController.windowClick(l_Chest.inventorySlots.windowId, l_I, -999, ClickType.THROW, mc.player);
+                        mc.playerController.windowClick(chest.inventorySlots.windowId, i, -999, ClickType.THROW, mc.player);
                         return;
                     default:
                         break;
                 }
             }
-        }
-        else if (mc.currentScreen instanceof GuiScreenHorseInventory && EntityChests.getValue())
-        {
-            GuiScreenHorseInventory l_Chest = (GuiScreenHorseInventory)mc.currentScreen;
-            
-            for (int l_I = 0; l_I < l_Chest.horseInventory.getSizeInventory(); ++l_I)
-            {
-                ItemStack l_Stack = l_Chest.horseInventory.getStackInSlot(l_I);
+        } else if (mc.currentScreen instanceof GuiScreenHorseInventory && EntityChests.getValue()) {
+            GuiScreenHorseInventory chest = (GuiScreenHorseInventory) mc.currentScreen;
 
-                if ((l_Stack.isEmpty() || l_Stack.getItem() == Items.AIR) && Mode.getValue() == Modes.Store)
-                {
-                    HandleStoring(l_Chest.inventorySlots.windowId, l_Chest.horseInventory.getSizeInventory() - 9);
+            for (int i = 0; i < chest.horseInventory.getSizeInventory(); ++i) {
+                ItemStack stack = chest.horseInventory.getStackInSlot(i);
+
+                if ((stack.isEmpty() || stack.getItem() == Items.AIR) && Mode.getValue() == Modes.Store) {
+                    HandleStoring(chest.inventorySlots.windowId, chest.horseInventory.getSizeInventory() - 9);
                     return;
                 }
 
-                if (Shulkers.getValue() && !(l_Stack.getItem() instanceof ItemShulkerBox))
-                    continue;
-                
-                if (l_Stack.isEmpty())
+                if (Shulkers.getValue() && !(stack.getItem() instanceof ItemShulkerBox))
                     continue;
 
-                switch (Mode.getValue())
-                {
+                if (stack.isEmpty())
+                    continue;
+
+                switch (Mode.getValue()) {
                     case Steal:
-                        mc.playerController.windowClick(l_Chest.inventorySlots.windowId, l_I, 0, ClickType.QUICK_MOVE, mc.player);
+                        mc.playerController.windowClick(chest.inventorySlots.windowId, i, 0, ClickType.QUICK_MOVE, mc.player);
                         return;
                     case Drop:
-                        mc.playerController.windowClick(l_Chest.inventorySlots.windowId, l_I, -999, ClickType.THROW, mc.player);
+                        mc.playerController.windowClick(chest.inventorySlots.windowId, i, -999, ClickType.THROW, mc.player);
                         return;
                     default:
                         break;
                 }
             }
-        }
-        else if (mc.currentScreen instanceof GuiShulkerBox && Shulkers.getValue())
-        {
-            GuiShulkerBox l_Chest = (GuiShulkerBox)mc.currentScreen;
-            
-            for (int l_I = 0; l_I < l_Chest.inventory.getSizeInventory(); ++l_I)
-            {
-                ItemStack l_Stack = l_Chest.inventory.getStackInSlot(l_I);
+        } else if (mc.currentScreen instanceof GuiShulkerBox && Shulkers.getValue()) {
+            GuiShulkerBox chest = (GuiShulkerBox) mc.currentScreen;
 
-                if ((l_Stack.isEmpty() || l_Stack.getItem() == Items.AIR) && Mode.getValue() == Modes.Store)
-                {
-                    HandleStoring(l_Chest.inventorySlots.windowId, l_Chest.inventory.getSizeInventory() - 9);
+            for (int i = 0; i < chest.inventory.getSizeInventory(); ++i) {
+                ItemStack stack = chest.inventory.getStackInSlot(i);
+
+                if ((stack.isEmpty() || stack.getItem() == Items.AIR) && Mode.getValue() == Modes.Store) {
+                    HandleStoring(chest.inventorySlots.windowId, chest.inventory.getSizeInventory() - 9);
                     return;
                 }
 
-                if (Shulkers.getValue() && !(l_Stack.getItem() instanceof ItemShulkerBox))
+                if (Shulkers.getValue() && !(stack.getItem() instanceof ItemShulkerBox))
                     continue;
 
-                if (l_Stack.isEmpty())
+                if (stack.isEmpty())
                     continue;
-                
-                switch (Mode.getValue())
-                {
+
+                switch (Mode.getValue()) {
                     case Steal:
-                        mc.playerController.windowClick(l_Chest.inventorySlots.windowId, l_I, 0, ClickType.QUICK_MOVE, mc.player);
+                        mc.playerController.windowClick(chest.inventorySlots.windowId, i, 0, ClickType.QUICK_MOVE, mc.player);
                         return;
                     case Drop:
-                        mc.playerController.windowClick(l_Chest.inventorySlots.windowId, l_I, -999, ClickType.THROW, mc.player);
+                        mc.playerController.windowClick(chest.inventorySlots.windowId, i, -999, ClickType.THROW, mc.player);
                         return;
                     default:
                         break;
@@ -158,21 +122,28 @@ public class ChestStealerModule extends Module
         }
     });
 
-    private void HandleStoring(int p_WindowId, int p_Slot)
-    {
-        if (Mode.getValue() == Modes.Store)
-        {
-            for (int l_Y = 9; l_Y < mc.player.inventoryContainer.inventorySlots.size() - 1; ++l_Y)
-            {
-                ItemStack l_InvStack = mc.player.inventoryContainer.getSlot(l_Y).getStack();
+    public ChestStealerModule() {
+        super("ChestStealer", new String[]
+                {"Chest"}, "Steals the contents from chests", "NONE", 0xDB5E24, ModuleType.MISC);
+    }
 
-                if (l_InvStack.isEmpty() || l_InvStack.getItem() == Items.AIR)
+    @Override
+    public String getMetaData() {
+        return Mode.getValue().toString();
+    }
+
+    private void HandleStoring(int windowId, int slot) {
+        if (Mode.getValue() == Modes.Store) {
+            for (int y = 9; y < mc.player.inventoryContainer.inventorySlots.size() - 1; ++y) {
+                ItemStack invStack = mc.player.inventoryContainer.getSlot(y).getStack();
+
+                if (invStack.isEmpty() || invStack.getItem() == Items.AIR)
                     continue;
 
-                if (Shulkers.getValue() && !(l_InvStack.getItem() instanceof ItemShulkerBox))
+                if (Shulkers.getValue() && !(invStack.getItem() instanceof ItemShulkerBox))
                     continue;
 
-                mc.playerController.windowClick(p_WindowId, l_Y + p_Slot, 0, ClickType.QUICK_MOVE, mc.player);
+                mc.playerController.windowClick(windowId, y + slot, 0, ClickType.QUICK_MOVE, mc.player);
                 return;
             }
         }
@@ -190,6 +161,12 @@ public class ChestStealerModule extends Module
                 && mc.currentScreen instanceof GuiCrafting
                 && mc.currentScreen instanceof GuiContainerCreative
                 && mc.currentScreen instanceof GuiInventory);
+    }
+
+    public enum Modes {
+        Steal,
+        Store,
+        Drop,
     }
 
 }

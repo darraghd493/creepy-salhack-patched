@@ -19,37 +19,38 @@ public class ArrayListComponent extends HudComponentItem {
             {""}, "Makes a dynamic rainbow", true);
     public final Value<Boolean> NoBackground = new Value<Boolean>("NoBackground", new String[]
             {""}, "NoBackground on arraylist", false);
-    private HashMap<Module, String> m_StaticModuleNames = new HashMap<Module, String>();
-    private Timer ReorderTimer = new Timer();
-    private SalRainbowUtil Rainbow = new SalRainbowUtil(9);
+    private final HashMap<Module, String> m_StaticModuleNames = new HashMap<Module, String>();
+    private final Timer ReorderTimer = new Timer();
+    private final SalRainbowUtil Rainbow = new SalRainbowUtil(9);
+
     public ArrayListComponent() {
         super("ArrayList", 0, 0);
         SetHidden(false);
         ClampLevel = 1;
     }
 
-    public String GenerateModuleDisplayName(final Module p_Mod) {
-        String l_DisplayName = p_Mod.GetArrayListDisplayName();
-        if (p_Mod.getMetaData() != null) {
-            l_DisplayName = l_DisplayName + " " + ChatFormatting.GRAY + "[" + ChatFormatting.GRAY + p_Mod.getMetaData() + ChatFormatting.GRAY + "]";
+    public String GenerateModuleDisplayName(final Module mod1) {
+        String displayName = mod1.GetArrayListDisplayName();
+        if (mod1.getMetaData() != null) {
+            displayName = displayName + " " + ChatFormatting.GRAY + "[" + ChatFormatting.GRAY + mod1.getMetaData() + ChatFormatting.GRAY + "]";
         }
-        return l_DisplayName;
+        return displayName;
     }
 
-    public String GetStaticModuleNames(final Module p_Mod) {
-        if (!this.m_StaticModuleNames.containsKey(p_Mod)) {
-            this.m_StaticModuleNames.put(p_Mod, this.GenerateModuleDisplayName(p_Mod));
+    public String GetStaticModuleNames(final Module mod1) {
+        if (!this.m_StaticModuleNames.containsKey(mod1)) {
+            this.m_StaticModuleNames.put(mod1, this.GenerateModuleDisplayName(mod1));
         }
-        return this.m_StaticModuleNames.get(p_Mod);
+        return this.m_StaticModuleNames.get(mod1);
     }
 
     @Override
-    public void SetHidden(final boolean p_Hidden) {
-        super.SetHidden(p_Hidden);
-        ModuleManager.Get().GetModuleList().forEach(p_Mod -> {
-            if (p_Mod != null && p_Mod.getType() != Module.ModuleType.HIDDEN && p_Mod.isEnabled() && !p_Mod.isHidden()) {
-                p_Mod.RemainingXAnimation = RenderUtil.getStringWidth(p_Mod.GetFullArrayListDisplayName()) + 10.0f;
-                ModuleManager.Get().OnModEnable(p_Mod);
+    public void SetHidden(final boolean hidden) {
+        super.SetHidden(hidden);
+        ModuleManager.Get().GetModuleList().forEach(mod1 -> {
+            if (mod1 != null && mod1.getType() != Module.ModuleType.HIDDEN && mod1.isEnabled() && !mod1.isHidden()) {
+                mod1.RemainingXAnimation = RenderUtil.getStringWidth(mod1.GetFullArrayListDisplayName()) + 10.0f;
+                ModuleManager.Get().OnModEnable(mod1);
             }
         });
     }
@@ -79,7 +80,7 @@ public class ArrayListComponent extends HudComponentItem {
         float yOffset = 1.0f;
         float maxWidth = 0.0f;
         Rainbow.OnRender();
-        int l_I = 0;
+        int i = 0;
         for (final Module mod2 : mods) {
             if (mod2 != null && mod2.getType() != Module.ModuleType.HIDDEN && mod2.isEnabled() && !mod2.isHidden()) {
                 final String name = GenerateModuleDisplayName(mod2);
@@ -87,51 +88,51 @@ public class ArrayListComponent extends HudComponentItem {
                 if (width >= maxWidth) {
                     maxWidth = width;
                 }
-                final float l_StringYHeight = 11.0f;
-                final float l_RemainingXOffset = mod2.GetRemainingXArraylistOffset();
+                final float stringYHeight = 11.0f;
+                final float remainingXOffset = mod2.GetRemainingXArraylistOffset();
                 switch (Side) {
                     case 0:
                     case 1: {
-                        xOffset = GetWidth() - RenderUtil.getStringWidth(name) + l_RemainingXOffset;
+                        xOffset = GetWidth() - RenderUtil.getStringWidth(name) + remainingXOffset;
                         break;
                     }
                     case 2:
                     case 3: {
-                        xOffset = -l_RemainingXOffset;
+                        xOffset = -remainingXOffset;
                         break;
                     }
                 }
-                l_I += 20;
-                if (l_I >= 355) {
-                    l_I = 0;
+                i += 20;
+                if (i >= 355) {
+                    i = 0;
                 }
                 switch (Side) {
                     case 0:
                     case 3: {
                         if (!NoBackground.getValue()) {
-                            RenderUtil.drawRect(GetX() + xOffset + mod2.GetRemainingXArraylistOffset(), GetY() + yOffset, GetX() + xOffset + RenderUtil.getStringWidth(name) + 10.0f, GetY() + yOffset + (l_StringYHeight + 1.5f), 1963986960);
+                            RenderUtil.drawRect(GetX() + xOffset + mod2.GetRemainingXArraylistOffset(), GetY() + yOffset, GetX() + xOffset + RenderUtil.getStringWidth(name) + 10.0f, GetY() + yOffset + (stringYHeight + 1.5f), 1963986960);
                         }
-                        RenderUtil.drawStringWithShadow(name, GetX() + xOffset, GetY() + yOffset, ((boolean) RainbowVal.getValue()) ? Rainbow.GetRainbowColorAt(l_I) : mod2.getColor());
-                        yOffset += l_StringYHeight + 1.5f;
+                        RenderUtil.drawStringWithShadow(name, GetX() + xOffset, GetY() + yOffset, RainbowVal.getValue() ? Rainbow.GetRainbowColorAt(i) : mod2.getColor());
+                        yOffset += stringYHeight + 1.5f;
                         continue;
                     }
                     case 1:
                     case 2: {
                         if (!NoBackground.getValue()) {
-                            RenderUtil.drawRect(GetX() + xOffset + mod2.GetRemainingXArraylistOffset(), GetY() + (GetHeight() - l_StringYHeight) + yOffset, GetX() + xOffset + RenderUtil.getStringWidth(name) + 10.0f, GetY() + (GetHeight() - l_StringYHeight) + yOffset + (l_StringYHeight + 1.5f), 1963986960);
+                            RenderUtil.drawRect(GetX() + xOffset + mod2.GetRemainingXArraylistOffset(), GetY() + (GetHeight() - stringYHeight) + yOffset, GetX() + xOffset + RenderUtil.getStringWidth(name) + 10.0f, GetY() + (GetHeight() - stringYHeight) + yOffset + (stringYHeight + 1.5f), 1963986960);
                         }
-                        RenderUtil.drawStringWithShadow(name, GetX() + xOffset, GetY() + (GetHeight() - l_StringYHeight) + yOffset, ((boolean) RainbowVal.getValue()) ? Rainbow.GetRainbowColorAt(l_I) : mod2.getColor());
-                        yOffset -= l_StringYHeight + 1.5f;
+                        RenderUtil.drawStringWithShadow(name, GetX() + xOffset, GetY() + (GetHeight() - stringYHeight) + yOffset, RainbowVal.getValue() ? Rainbow.GetRainbowColorAt(i) : mod2.getColor());
+                        yOffset -= stringYHeight + 1.5f;
                         continue;
                     }
                 }
             }
         }
         if (ClampLevel > 0) {
-            final ScaledResolution l_Res = new ScaledResolution(mc);
+            final ScaledResolution res = new ScaledResolution(mc);
             switch (Side) {
                 case 0: {
-                    SetX(l_Res.getScaledWidth() - maxWidth + 8.0f);
+                    SetX(res.getScaledWidth() - maxWidth + 8.0f);
                     if (ClampLevel == 2) {
                         SetY(Math.max(GetY(), 1.0f));
                         break;
@@ -140,21 +141,21 @@ public class ArrayListComponent extends HudComponentItem {
                     break;
                 }
                 case 1: {
-                    SetX(l_Res.getScaledWidth() - maxWidth + 8.0f);
+                    SetX(res.getScaledWidth() - maxWidth + 8.0f);
                     if (ClampLevel == 2) {
-                        SetY(Math.min(GetY(), l_Res.getScaledWidth() + yOffset));
+                        SetY(Math.min(GetY(), res.getScaledWidth() + yOffset));
                         break;
                     }
-                    SetY(l_Res.getScaledWidth() + yOffset);
+                    SetY(res.getScaledWidth() + yOffset);
                     break;
                 }
                 case 2: {
                     SetX(1.0f);
                     if (ClampLevel == 2) {
-                        SetY(Math.min(GetY(), l_Res.getScaledWidth() + yOffset));
+                        SetY(Math.min(GetY(), res.getScaledWidth() + yOffset));
                         break;
                     }
-                    SetY(l_Res.getScaledWidth() + yOffset);
+                    SetY(res.getScaledWidth() + yOffset);
                     break;
                 }
                 case 3: {

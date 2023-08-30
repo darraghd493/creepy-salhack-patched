@@ -1,53 +1,30 @@
 package me.ionar.salhack.managers;
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.WritableRaster;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NavigableMap;
-import java.util.TreeMap;
-
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.metadata.IIOMetadataNode;
-import javax.imageio.stream.ImageInputStream;
-
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import com.ibm.icu.util.CharsTrie.Iterator;
-
-import akka.japi.Pair;
 import me.ionar.salhack.main.SalHack;
 import me.ionar.salhack.util.imgs.SalDynamicTexture;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.util.ResourceLocation;
 
-public class ImageManager
-{
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+
+public class ImageManager {
     public NavigableMap<String, SalDynamicTexture> Pictures = new TreeMap<String, SalDynamicTexture>();
 
-    public ImageManager()
-    {
+    public ImageManager() {
         //LoadImages();
 
     }
-    
-    public void Load()
-    {
+
+    public static ImageManager Get() {
+        return SalHack.GetImageManager();
+    }
+
+    public void Load() {
         LoadImage("OutlinedEllipse");
         LoadImage("Arrow");
         LoadImage("blockimg");
@@ -62,85 +39,68 @@ public class ImageManager
         LoadImage("particles");
         LoadImage("Title");
     }
-    
-    public void LoadImage(String p_Img)
-    {
-        BufferedImage l_Image = null;
-        
-        InputStream l_Stream = ImageManager.class.getResourceAsStream("/assets/salhack/imgs/" + p_Img + ".png");
-        
-        try
-        {
-            l_Image = ImageIO.read(l_Stream);
-        }
-        catch (IOException e)
-        {
+
+    public void LoadImage(String img) {
+        BufferedImage image = null;
+
+        InputStream stream = ImageManager.class.getResourceAsStream("/assets/salhack/imgs/" + img + ".png");
+
+        try {
+            image = ImageIO.read(stream);
+        } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
-        if (l_Image == null)
-        {
-            System.out.println("Couldn't load image: " + p_Img);
+
+        if (image == null) {
+            System.out.println("Couldn't load image: " + img);
             return;
         }
 
-        int l_Height = l_Image.getHeight();
-        int l_Width = l_Image.getWidth();
+        int height = image.getHeight();
+        int width = image.getWidth();
 
-        final SalDynamicTexture l_Texture = new SalDynamicTexture(l_Image, l_Height, l_Width);
-        if (l_Texture != null)
-        {
-            l_Texture.SetResourceLocation(Minecraft.getMinecraft().getTextureManager()
-                    .getDynamicTextureLocation("salhack/textures", l_Texture));
+        final SalDynamicTexture texture = new SalDynamicTexture(image, height, width);
+        if (texture != null) {
+            texture.SetResourceLocation(Minecraft.getMinecraft().getTextureManager()
+                    .getDynamicTextureLocation("salhack/textures", texture));
 
-            Pictures.put(p_Img, l_Texture);
-            
-            System.out.println("Loaded Img: " + p_Img);
+            Pictures.put(img, texture);
+
+            System.out.println("Loaded Img: " + img);
         }
     }
 
-    public SalDynamicTexture GetDynamicTexture(String p_Image)
-    {
-        if (Pictures.containsKey(p_Image))
-            return Pictures.get(p_Image);
+    public SalDynamicTexture GetDynamicTexture(String image) {
+        if (Pictures.containsKey(image))
+            return Pictures.get(image);
 
         return null;
     }
-    
-    public String GetNextImage(String value, boolean p_Recursive)
-    {
-        String l_String = null;
 
-        for (Map.Entry<String, SalDynamicTexture> l_Itr : Pictures.entrySet())
-        {
-            if (!l_Itr.getKey().equalsIgnoreCase(value))
+    public String GetNextImage(String value, boolean recursive) {
+        String string = null;
+
+        for (Map.Entry<String, SalDynamicTexture> itr : Pictures.entrySet()) {
+            if (!itr.getKey().equalsIgnoreCase(value))
                 continue;
 
-            if (p_Recursive)
-            {
-                l_String = Pictures.lowerKey(l_Itr.getKey());
+            if (recursive) {
+                string = Pictures.lowerKey(itr.getKey());
 
-                if (l_String == null)
+                if (string == null)
                     return Pictures.lastKey();
-            }
-            else
-            {
-                l_String = Pictures.higherKey(l_Itr.getKey());
+            } else {
+                string = Pictures.higherKey(itr.getKey());
 
-                if (l_String == null)
+                if (string == null)
                     return Pictures.firstKey();
             }
 
-            return l_String;
+            return string;
         }
 
-        return l_String;
-    }
-
-    public static ImageManager Get()
-    {
-        return SalHack.GetImageManager();
+        return string;
     }
 
 }

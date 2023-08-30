@@ -9,32 +9,27 @@ import me.ionar.salhack.module.combat.AutoCrystalRewrite;
 import me.ionar.salhack.module.combat.OldAutoCrystalRewrite;
 import me.ionar.salhack.util.entity.PlayerUtil;
 
-public class DiscordRPCModule extends Module
-{
-    public final Value<Boolean> Username = new Value<Boolean>("Username", new String[] {"U"}, "Displays your username in the rich presence", true);
-    public final Value<Boolean> ServerIP = new Value<Boolean>("ServerIP", new String[] {"S"}, "Displays your current playing server in the rich presence", true);
-    public final Value<String> DetailsAddon = new Value<String>("DetailsAddon", new String[] {"D"}, "Displays a custom message after the previous", "Gaming");
-    public final Value<Boolean> Ionar = new Value<Boolean>("Ionar", new String[] {"U"}, "Displays a message about ionar", true);
-    public final Value<Boolean> Speed = new Value<Boolean>("Speed", new String[] {"U"}, "Displays your speed in the rich presence", true);
-    public final Value<Boolean> Movement = new Value<Boolean>("Movement", new String[] {"U"}, "Displays if you're flying/onground in the rich presence", true);
-    public final Value<Boolean> Crystalling = new Value<Boolean>("Crystalling", new String[] {"U"}, "Displays the current target from autocrystal", true);
-    public final Value<Boolean> Health = new Value<Boolean>("Health", new String[] {"U"}, "Displays your Health in the rich presence", true);
-    public final Value<Boolean> GitHub = new Value<Boolean>("GitHub", new String[] {"U"}, "Displays the github link", false);
-
-    public DiscordRPCModule()
-    {
-        super("DiscordRPC", new String[] {"RPC"}, "Shows discord rich presence for this mod", "NONE", -1, ModuleType.MISC);
+public class DiscordRPCModule extends Module {
+    public final Value<Boolean> Username = new Value<Boolean>("Username", new String[]{"U"}, "Displays your username in the rich presence", true);
+    public final Value<Boolean> ServerIP = new Value<Boolean>("ServerIP", new String[]{"S"}, "Displays your current playing server in the rich presence", true);
+    public final Value<String> DetailsAddon = new Value<String>("DetailsAddon", new String[]{"D"}, "Displays a custom message after the previous", "Gaming");
+    public final Value<Boolean> Ionar = new Value<Boolean>("Ionar", new String[]{"U"}, "Displays a message about ionar", true);
+    public final Value<Boolean> Speed = new Value<Boolean>("Speed", new String[]{"U"}, "Displays your speed in the rich presence", true);
+    public final Value<Boolean> Movement = new Value<Boolean>("Movement", new String[]{"U"}, "Displays if you're flying/onground in the rich presence", true);
+    public final Value<Boolean> Crystalling = new Value<Boolean>("Crystalling", new String[]{"U"}, "Displays the current target from autocrystal", true);
+    public final Value<Boolean> Health = new Value<Boolean>("Health", new String[]{"U"}, "Displays your Health in the rich presence", true);
+    public final Value<Boolean> GitHub = new Value<Boolean>("GitHub", new String[]{"U"}, "Displays the github link", false);
+    private AutoCrystalRewrite _autoCrystal = null;
+    private OldAutoCrystalRewrite _oldAutoCrystal = null;
+    public DiscordRPCModule() {
+        super("DiscordRPC", new String[]{"RPC"}, "Shows discord rich presence for this mod", "NONE", -1, ModuleType.MISC);
 //        setEnabled(true);
     }
 
-    private AutoCrystalRewrite _autoCrystal = null;
-    private OldAutoCrystalRewrite  _oldAutoCrystal = null;
-
     @Override
-    public void init()
-    {
-        _autoCrystal = (AutoCrystalRewrite)ModuleManager.Get().GetMod(AutoCrystalRewrite.class);
-        _oldAutoCrystal = (OldAutoCrystalRewrite)ModuleManager.Get().GetMod(OldAutoCrystalRewrite.class);
+    public void init() {
+        _autoCrystal = (AutoCrystalRewrite) ModuleManager.Get().GetMod(AutoCrystalRewrite.class);
+        _oldAutoCrystal = (OldAutoCrystalRewrite) ModuleManager.Get().GetMod(OldAutoCrystalRewrite.class);
 
         if (isEnabled() && !DiscordManager.Get().isEnabled())
             DiscordManager.Get().enable();
@@ -45,8 +40,7 @@ public class DiscordRPCModule extends Module
     }
 
     @Override
-    public void onEnable()
-    {
+    public void onEnable() {
         super.onEnable();
 
         if (!DiscordManager.Get().isEnabled())
@@ -54,15 +48,13 @@ public class DiscordRPCModule extends Module
     }
 
     @Override
-    public void onDisable()
-    {
+    public void onDisable() {
         super.onDisable();
 
         DiscordManager.Get().disable();
     }
 
-    public String generateDetails()
-    {
+    public String generateDetails() {
         String result = DetailsAddon.getValue();
 
         if (result == null)
@@ -76,18 +68,16 @@ public class DiscordRPCModule extends Module
 
         return result;
     }
-    public String generateState()
-    {
+
+    public String generateState() {
         if (mc.player == null)
             return "Loading...";
 
-        if (Ionar.getValue())
-        {
+        if (Ionar.getValue()) {
             return "Thank you Ionar for SalHack!";
         }
 
-        if (GitHub.getValue())
-        {
+        if (GitHub.getValue()) {
             return "The CreepyOrb924 SalHack source is hosted at https://github.com/CreepyOrb924/salhack!";
         }
 
@@ -97,22 +87,19 @@ public class DiscordRPCModule extends Module
         if (Crystalling.getValue() && _autoCrystal.isEnabled() && _autoCrystal.getTarget() != null || _oldAutoCrystal.isEnabled())
             return "Crystalling " + _autoCrystal.getTarget() + " with SalHack's autocrystal!";
 
-        if (Movement.getValue())
-        {
+        if (Movement.getValue()) {
             result = mc.player.onGround ? "On the ground" : "Airborne";
 
             if (mc.player.isElytraFlying())
                 result = "Zooming";
         }
 
-        if (Speed.getValue())
-        {
+        if (Speed.getValue()) {
             float speed = PlayerUtil.getSpeedInKM();
 
             if (result.isEmpty())
                 result = "Moving " + speed + " km/h";
-            else
-            {
+            else {
                 if (result.equals("Zooming"))
                     result += " at " + speed + " km/h";
                 else
@@ -120,8 +107,7 @@ public class DiscordRPCModule extends Module
             }
         }
 
-        if (Health.getValue())
-        {
+        if (Health.getValue()) {
             if (!result.isEmpty())
                 result += " ";
 

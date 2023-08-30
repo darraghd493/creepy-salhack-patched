@@ -11,12 +11,7 @@ import net.minecraft.entity.passive.EntityLlama;
 
 public class EntitySpeedModule extends Module {
 
-    public EntitySpeedModule() {
-        super("EntitySpeed", new String[] {""}, "Move fast on entities.", "NONE", -1, ModuleType.MOVEMENT);
-    }
-
-    public static final Value<Double> Speed = new Value<Double>("Speed", new String[] {""}, "Speed your entity moves.", 1.0,1.0,5.0,0.1);
-
+    public static final Value<Double> Speed = new Value<Double>("Speed", new String[]{""}, "Speed your entity moves.", 1.0, 1.0, 5.0, 0.1);
     @EventHandler
     private final Listener<EventPlayerUpdate> listener = new Listener<>(event -> {
         if (mc.player == null || mc.player.getRidingEntity() == null) return;
@@ -38,9 +33,9 @@ public class EntitySpeedModule extends Module {
         } else {
             if (forward != 0.0) {
                 if (strafe > 0.0) {
-                    yaw += (float)(forward > 0.0 ? -45 : 45);
+                    yaw += (float) (forward > 0.0 ? -45 : 45);
                 } else if (strafe < 0.0) {
-                    yaw += (float)(forward > 0.0 ? 45 : -45);
+                    yaw += (float) (forward > 0.0 ? 45 : -45);
                 }
                 strafe = 0.0;
                 if (forward > 0.0) {
@@ -61,5 +56,9 @@ public class EntitySpeedModule extends Module {
 
         }
     });
+
+    public EntitySpeedModule() {
+        super("EntitySpeed", new String[]{""}, "Move fast on entities.", "NONE", -1, ModuleType.MOVEMENT);
+    }
 
 }

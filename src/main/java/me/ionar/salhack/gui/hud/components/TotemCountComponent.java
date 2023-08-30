@@ -9,43 +9,37 @@ import me.ionar.salhack.util.render.RenderUtil;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 
-public class TotemCountComponent extends HudComponentItem
-{
-    public TotemCountComponent()
-    {
+public class TotemCountComponent extends HudComponentItem {
+    private final HudModule hud = (HudModule) ModuleManager.Get().GetMod(HudModule.class);
+    private final SalRainbowUtil Rainbow = new SalRainbowUtil(9);
+    private final int i = 0;
+    public TotemCountComponent() {
         super("TotemCount", 2, 215);
     }
 
-    private HudModule l_Hud = (HudModule) ModuleManager.Get().GetMod(HudModule.class);
-    private SalRainbowUtil Rainbow = new SalRainbowUtil(9);
-    private int l_I = 0;
-
     @Override
-    public void render(int p_MouseX, int p_MouseY, float p_PartialTicks)
-    {
-        super.render(p_MouseX, p_MouseY, p_PartialTicks);
-        
-        int l_TotemCount = 0;
+    public void render(int mouseX, int mouseY, float partialTicks) {
+        super.render(mouseX, mouseY, partialTicks);
 
-        for (int i = 0; i < mc.player.inventoryContainer.getInventory().size(); ++i)
-        {
+        int totemCount = 0;
+
+        for (int i = 0; i < mc.player.inventoryContainer.getInventory().size(); ++i) {
             ItemStack s = mc.player.inventoryContainer.getInventory().get(i);
-            
+
             if (s.isEmpty())
                 continue;
-            
-            if (s.getItem() == Items.TOTEM_OF_UNDYING)
-            {
-                ++l_TotemCount;
+
+            if (s.getItem() == Items.TOTEM_OF_UNDYING) {
+                ++totemCount;
             }
         }
 
-        final String totemCount = l_Hud.Rainbow.getValue() ? "Totems: " + l_TotemCount : ChatFormatting.GRAY + "Totems: " + ChatFormatting.WHITE + l_TotemCount;
+        final String totemCount1 = hud.Rainbow.getValue() ? "Totems: " + totemCount : ChatFormatting.GRAY + "Totems: " + ChatFormatting.WHITE + totemCount;
 
-        SetWidth(RenderUtil.getStringWidth(totemCount));
-        SetHeight(RenderUtil.getStringHeight(totemCount));
+        SetWidth(RenderUtil.getStringWidth(totemCount1));
+        SetHeight(RenderUtil.getStringHeight(totemCount1));
         Rainbow.OnRender();
-        RenderUtil.drawStringWithShadow(totemCount, GetX(), GetY(), l_Hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1);
+        RenderUtil.drawStringWithShadow(totemCount1, GetX(), GetY(), hud.Rainbow.getValue() ? Rainbow.GetRainbowColorAt(Rainbow.getRainbowColorNumber()) : -1);
     }
 
 }

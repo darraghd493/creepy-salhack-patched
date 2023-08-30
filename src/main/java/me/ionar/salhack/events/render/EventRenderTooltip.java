@@ -1,34 +1,28 @@
 package me.ionar.salhack.events.render;
 
 import me.ionar.salhack.events.MinecraftEvent;
-import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 
-public class EventRenderTooltip extends MinecraftEvent
-{
-    private ItemStack Item;
-    private int X;
-    private int Y;
+public class EventRenderTooltip extends MinecraftEvent {
+    private final ItemStack Item;
+    private final int X;
+    private final int Y;
 
-    public EventRenderTooltip(ItemStack p_Stack, int p_X, int p_Y)
-    {
-        Item = p_Stack;
-        X = p_X;
-        Y = p_Y;
+    public EventRenderTooltip(ItemStack stack, int x1, int y1) {
+        Item = stack;
+        X = x1;
+        Y = y1;
     }
 
-    public ItemStack getItemStack()
-    {
+    public ItemStack getItemStack() {
         return Item;
     }
 
-    public int getX()
-    {
+    public int getX() {
         return X;
     }
 
-    public int getY()
-    {
+    public int getY() {
         return Y;
     }
 

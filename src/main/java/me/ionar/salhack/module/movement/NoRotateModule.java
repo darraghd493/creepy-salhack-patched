@@ -9,61 +9,37 @@ import net.minecraft.network.play.client.CPacketConfirmTeleport;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 
-public final class NoRotateModule extends Module
-{
-    public NoRotateModule()
-    {
-        super("NoRotate", new String[]
-        { "NoRot", "AntiRotate" }, "Prevents you from processing server rotations", "NONE", 0x24B2DB, ModuleType.MOVEMENT);
-    }
-    
-    @Override
-    public String getMetaData()
-    {
-        return "Packet";
-    }
-
+public final class NoRotateModule extends Module {
     @EventHandler
-    private Listener<EventNetworkPacketEvent> PacketEvent = new Listener<>(p_Event ->
+    private final Listener<EventNetworkPacketEvent> PacketEvent = new Listener<>(event ->
     {
         if (mc.world == null || mc.player == null)
             return;
-        
-        if (p_Event.getPacket() instanceof SPacketPlayerPosLook)
-        {
-            if (mc.player != null && mc.getConnection().doneLoadingTerrain)
-            {
-                p_Event.cancel();
+
+        if (event.getPacket() instanceof SPacketPlayerPosLook) {
+            if (mc.player != null && mc.getConnection().doneLoadingTerrain) {
+                event.cancel();
                 EntityPlayer entityplayer = mc.player;
-                final SPacketPlayerPosLook packetIn = (SPacketPlayerPosLook) p_Event.getPacket();
+                final SPacketPlayerPosLook packetIn = (SPacketPlayerPosLook) event.getPacket();
                 double d0 = packetIn.getX();
                 double d1 = packetIn.getY();
                 double d2 = packetIn.getZ();
 
-                if (packetIn.getFlags().contains(SPacketPlayerPosLook.EnumFlags.X))
-                {
+                if (packetIn.getFlags().contains(SPacketPlayerPosLook.EnumFlags.X)) {
                     d0 += entityplayer.posX;
-                }
-                else
-                {
+                } else {
                     entityplayer.motionX = 0.0D;
                 }
 
-                if (packetIn.getFlags().contains(SPacketPlayerPosLook.EnumFlags.Y))
-                {
+                if (packetIn.getFlags().contains(SPacketPlayerPosLook.EnumFlags.Y)) {
                     d1 += entityplayer.posY;
-                }
-                else
-                {
+                } else {
                     entityplayer.motionY = 0.0D;
                 }
 
-                if (packetIn.getFlags().contains(SPacketPlayerPosLook.EnumFlags.Z))
-                {
+                if (packetIn.getFlags().contains(SPacketPlayerPosLook.EnumFlags.Z)) {
                     d2 += entityplayer.posZ;
-                }
-                else
-                {
+                } else {
                     entityplayer.motionZ = 0.0D;
                 }
 
@@ -73,5 +49,15 @@ public final class NoRotateModule extends Module
             }
         }
     });
+
+    public NoRotateModule() {
+        super("NoRotate", new String[]
+                {"NoRot", "AntiRotate"}, "Prevents you from processing server rotations", "NONE", 0x24B2DB, ModuleType.MOVEMENT);
+    }
+
+    @Override
+    public String getMetaData() {
+        return "Packet";
+    }
 
 }

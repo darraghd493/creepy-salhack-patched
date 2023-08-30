@@ -30,20 +30,16 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class ParticleRenderer {
 
-    private static SalDynamicTexture particlesImage = ImageManager.Get().GetDynamicTexture("particles");
-    private static SalDynamicTexture texture;
-
     private static final Random random = new Random();
-
+    private static final Timer timer = new Timer();
+    private static final List<Particle> particles = new ArrayList<>();
+    private static final SalDynamicTexture particlesImage = ImageManager.Get().GetDynamicTexture("particles");
+    private static SalDynamicTexture texture;
     private static int width, height;
 
-    private static final Timer timer = new Timer();
-
-    private static final List<Particle> particles = new ArrayList<>();
-
-    public ParticleRenderer(int width, int height){
-        this.width = width;
-        this.height = height;
+    public ParticleRenderer(int width, int height) {
+        ParticleRenderer.width = width;
+        ParticleRenderer.height = height;
     }
 
     /**
@@ -56,11 +52,6 @@ public class ParticleRenderer {
             spawnParticles(0, 0, width, height, 55F, 15F);
             timer.reset();
         }
-    }
-
-    public void updateSize(int width, int height) {
-        this.width = width;
-        this.height = height;
     }
 
     public static void updateParticles() {
@@ -98,7 +89,7 @@ public class ParticleRenderer {
     public static void bindTexture(SalDynamicTexture textureName, float x, float y, float width, float height, float u, float v, float t, float s) {
         Minecraft.getMinecraft().renderEngine.bindTexture(textureName.GetResourceLocation());
         GlStateManager.enableTexture2D();
-        renderMenu(x, y,width, height, u, v, t, s);
+        renderMenu(x, y, width, height, u, v, t, s);
     }
 
     private static void renderMenu(float x, float y, float width, float height, float u, float v, float t, float s) {
@@ -135,6 +126,15 @@ public class ParticleRenderer {
         glEnd();
     }
 
+    private static int getMaxLife() {
+        return 50;
+    }
+
+    public void updateSize(int width, int height) {
+        ParticleRenderer.width = width;
+        ParticleRenderer.height = height;
+    }
+
     private static class Particle {
         float life, x, y,
                 motionX, motionY, gravity;
@@ -161,10 +161,6 @@ public class ParticleRenderer {
         private void update() {
             life -= random.nextFloat() * 2;
         }
-    }
-
-    private static int getMaxLife() {
-        return 50;
     }
 
 }

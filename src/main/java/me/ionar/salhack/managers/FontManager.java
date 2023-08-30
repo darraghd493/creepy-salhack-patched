@@ -3,59 +3,50 @@ package me.ionar.salhack.managers;
 import me.ionar.salhack.main.SalHack;
 import me.ionar.salhack.util.render.SalFontRenderer;
 
-public class FontManager
-{
+public class FontManager {
     public SalFontRenderer[] FontRenderers = new SalFontRenderer[25];
-    
+
     public SalFontRenderer TWCenMt18 = null;
     public SalFontRenderer TwCenMtStd28 = null;
     public SalFontRenderer VerdanaBold = null;
-    
-    public FontManager()
-    {
+
+    public FontManager() {
     }
-    
-    public void Load()
-    {
+
+    public static FontManager Get() {
+        return SalHack.GetFontManager();
+    }
+
+    public void Load() {
         TWCenMt18 = new SalFontRenderer("Tw Cen MT", 18);
         TwCenMtStd28 = new SalFontRenderer("Tw Cen MT Std", 28.14f);
         VerdanaBold = new SalFontRenderer("VerdanaBold", 20f);
-        
-        for (int l_I = 0; l_I < FontRenderers.length; ++l_I)
-            FontRenderers[l_I] = new SalFontRenderer("Tw Cen MT", l_I);
-    }
-    
-    public void LoadCustomFont(String customFont)
-    {
-        for (int l_I = 0; l_I < FontRenderers.length; ++l_I)
-            FontRenderers[l_I] = new SalFontRenderer(customFont, l_I);
-    }
-    
-    public SalFontRenderer GetFontBySize(int p_Size)
-    {
-        if (p_Size > FontRenderers.length)
-            p_Size = FontRenderers.length-1;
-        
-        return FontRenderers[p_Size];
+
+        for (int i = 0; i < FontRenderers.length; ++i)
+            FontRenderers[i] = new SalFontRenderer("Tw Cen MT", i);
     }
 
-    public float DrawStringWithShadow(String p_Name, float p_X, float p_Y, int p_Color)
-    {
-        return FontRenderers[22].drawStringWithShadow(p_Name, p_X, p_Y, p_Color);
+    public void LoadCustomFont(String customFont) {
+        for (int i = 0; i < FontRenderers.length; ++i)
+            FontRenderers[i] = new SalFontRenderer(customFont, i);
     }
 
-    public float GetStringHeight(String p_Name)
-    {
-        return FontRenderers[22].getStringHeight(p_Name);
+    public SalFontRenderer GetFontBySize(int size) {
+        if (size > FontRenderers.length)
+            size = FontRenderers.length - 1;
+
+        return FontRenderers[size];
     }
 
-    public float GetStringWidth(String p_Name)
-    {
-        return FontRenderers[22].getStringWidth(p_Name);
+    public float DrawStringWithShadow(String name1, float x1, float y1, int color) {
+        return FontRenderers[22].drawStringWithShadow(name1, x1, y1, color);
     }
 
-    public static FontManager Get()
-    {
-        return SalHack.GetFontManager();
+    public float GetStringHeight(String name1) {
+        return FontRenderers[22].getStringHeight(name1);
+    }
+
+    public float GetStringWidth(String name1) {
+        return FontRenderers[22].getStringWidth(name1);
     }
 }

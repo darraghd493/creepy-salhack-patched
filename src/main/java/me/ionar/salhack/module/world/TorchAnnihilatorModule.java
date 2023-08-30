@@ -1,7 +1,5 @@
 package me.ionar.salhack.module.world;
 
-import java.util.Comparator;
-
 import me.ionar.salhack.events.player.EventPlayerMotionUpdate;
 import me.ionar.salhack.module.Module;
 import me.ionar.salhack.module.Value;
@@ -10,65 +8,55 @@ import me.ionar.salhack.util.entity.EntityUtil;
 import me.ionar.salhack.util.entity.PlayerUtil;
 import me.zero.alpine.fork.listener.EventHandler;
 import me.zero.alpine.fork.listener.Listener;
-import net.minecraft.block.BlockDoublePlant;
-import net.minecraft.block.BlockFlower;
 import net.minecraft.block.BlockRedstoneTorch;
-import net.minecraft.block.BlockTallGrass;
 import net.minecraft.block.BlockTorch;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 
-public class TorchAnnihilatorModule extends Module
-{
-    public static Value<Integer> Radius = new Value<Integer>("Radius", new String[] {"R"}, "Radius to search for and break torches", 4, 0, 10, 1);
-    public static Value<Boolean> RedstoneTorches = new Value<Boolean>("RedstoneTorches", new String[] {"R"}, "Break Flowers", true);
-    
-    public TorchAnnihilatorModule()
-    {
-        super("TorchAnnihilator", new String[] {""}, "Automatically breaks torches in a distance, AVO style", "NONE", -1, ModuleType.WORLD);
-    }
+import java.util.Comparator;
 
+public class TorchAnnihilatorModule extends Module {
+    public static Value<Integer> Radius = new Value<Integer>("Radius", new String[]{"R"}, "Radius to search for and break torches", 4, 0, 10, 1);
+    public static Value<Boolean> RedstoneTorches = new Value<Boolean>("RedstoneTorches", new String[]{"R"}, "Break Flowers", true);
     @EventHandler
-    private Listener<EventPlayerMotionUpdate> OnPlayerUpdate = new Listener<>(p_Event ->
+    private final Listener<EventPlayerMotionUpdate> OnPlayerUpdate = new Listener<>(event ->
     {
-        BlockPos l_ClosestPos = BlockInteractionHelper.getSphere(PlayerUtil.GetLocalPlayerPosFloored(), Radius.getValue(), Radius.getValue(), false, true, 0).stream()
-                                .filter(p_Pos -> IsValidBlockPos(p_Pos))
-                                .min(Comparator.comparing(p_Pos -> EntityUtil.GetDistanceOfEntityToBlock(mc.player, p_Pos)))
-                                .orElse(null);
-        
-        if (l_ClosestPos != null)
-        {
-            p_Event.cancel();
+        BlockPos closestPos = BlockInteractionHelper.getSphere(PlayerUtil.GetLocalPlayerPosFloored(), Radius.getValue(), Radius.getValue(), false, true, 0).stream()
+                .filter(pos -> IsValidBlockPos(pos))
+                .min(Comparator.comparing(pos -> EntityUtil.GetDistanceOfEntityToBlock(mc.player, pos)))
+                .orElse(null);
 
-            final double l_Pos[] =  EntityUtil.calculateLookAt(
-                    l_ClosestPos.getX() + 0.5,
-                    l_ClosestPos.getY() - 0.5,
-                    l_ClosestPos.getZ() + 0.5,
+        if (closestPos != null) {
+            event.cancel();
+
+            final double[] pos = EntityUtil.calculateLookAt(
+                    closestPos.getX() + 0.5,
+                    closestPos.getY() - 0.5,
+                    closestPos.getZ() + 0.5,
                     mc.player);
-            
-            mc.player.rotationYawHead = (float) l_Pos[0];
-            
-            PlayerUtil.PacketFacePitchAndYaw((float)l_Pos[1], (float)l_Pos[0]);
+
+            mc.player.rotationYawHead = (float) pos[0];
+
+            PlayerUtil.PacketFacePitchAndYaw((float) pos[1], (float) pos[0]);
 
             mc.player.swingArm(EnumHand.MAIN_HAND);
-            mc.playerController.clickBlock(l_ClosestPos, EnumFacing.UP);
+            mc.playerController.clickBlock(closestPos, EnumFacing.UP);
         }
     });
-    
-    private boolean IsValidBlockPos(final BlockPos p_Pos)
-    {
-        IBlockState l_State = mc.world.getBlockState(p_Pos);
-        
-        if (l_State.getBlock() instanceof BlockTorch)
-        {
-            if (!RedstoneTorches.getValue() && l_State.getBlock() instanceof BlockRedstoneTorch)
-                return false;
-            
-            return true;
+
+    public TorchAnnihilatorModule() {
+        super("TorchAnnihilator", new String[]{""}, "Automatically breaks torches in a distance, AVO style", "NONE", -1, ModuleType.WORLD);
+    }
+
+    private boolean IsValidBlockPos(final BlockPos pos) {
+        IBlockState state = mc.world.getBlockState(pos);
+
+        if (state.getBlock() instanceof BlockTorch) {
+            return RedstoneTorches.getValue() || !(state.getBlock() instanceof BlockRedstoneTorch);
         }
-        
+
         return false;
     }
 }

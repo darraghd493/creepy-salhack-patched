@@ -14,105 +14,89 @@ import net.minecraft.entity.player.EntityPlayer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VisualRangeModule extends Module
-{
-    public final Value<Modes> Mode = new Value<Modes>("Mode", new String[] {"M"}, "Mode of notifying to use", Modes.Both);
+public class VisualRangeModule extends Module {
+    public final Value<Modes> Mode = new Value<Modes>("Mode", new String[]{"M"}, "Mode of notifying to use", Modes.Both);
     public final Value<Boolean> Friends = new Value<Boolean>("Friends", new String[]
-            { "Friend" }, "Notifies if a friend comes in range", true);
+            {"Friend"}, "Notifies if a friend comes in range", true);
     public final Value<Boolean> Enter = new Value<Boolean>("Enter", new String[]
-            { "Enters" }, "Notifies when the entity enters range", true);
+            {"Enters"}, "Notifies when the entity enters range", true);
     public final Value<Boolean> Leave = new Value<Boolean>("Leave", new String[]
-            { "Leaves" }, "Notifies when the entity leaves range", true);
-
-    private enum Modes
+            {"Leaves"}, "Notifies when the entity leaves range", true);
+    private final List<String> Entities = new ArrayList<String>();
+    @EventHandler
+    private final Listener<EventEntityAdded> OnEntityAdded = new Listener<>(event ->
     {
-        Chat,
-        Notification,
-        Both,
-    }
+        if (!Enter.getValue())
+            return;
 
-    public VisualRangeModule()
+        if (!VerifyEntity(event.GetEntity()))
+            return;
+
+        if (!Entities.contains(event.GetEntity().getName())) {
+            Entities.add(event.GetEntity().getName());
+            Notify(String.format("%s has entered your visual range.", event.GetEntity().getName()));
+        }
+    });
+    @EventHandler
+    private final Listener<EventEntityRemoved> OnEntityRemove = new Listener<>(event ->
     {
+        if (!Leave.getValue())
+            return;
+
+        if (!VerifyEntity(event.GetEntity()))
+            return;
+
+        if (Entities.contains(event.GetEntity().getName())) {
+            Entities.remove(event.GetEntity().getName());
+            Notify(String.format("%s has left your visual range.", event.GetEntity().getName()));
+        }
+    });
+
+    public VisualRangeModule() {
         super("VisualRange", new String[]
-                { "VR" }, "Notifies you when one enters or leaves your visual range.", "NONE", -1, Module.ModuleType.MISC);
+                {"VR"}, "Notifies you when one enters or leaves your visual range.", "NONE", -1, Module.ModuleType.MISC);
     }
-
-    private List<String> Entities = new ArrayList<String>();
 
     @Override
-    public String getMetaData()
-    {
+    public String getMetaData() {
         return String.valueOf(Mode.getValue());
     }
 
     @Override
-    public void onEnable()
-    {
+    public void onEnable() {
         super.onEnable();
 
         Entities.clear();
     }
 
-    @EventHandler
-    private Listener<EventEntityAdded> OnEntityAdded = new Listener<>(p_Event ->
-    {
-        if (!Enter.getValue())
-            return;
-
-        if (!VerifyEntity(p_Event.GetEntity()))
-            return;
-
-        if (!Entities.contains(p_Event.GetEntity().getName()))
-        {
-            Entities.add(p_Event.GetEntity().getName());
-            Notify(String.format("%s has entered your visual range.", p_Event.GetEntity().getName()));
-        }
-    });
-
-    @EventHandler
-    private Listener<EventEntityRemoved> OnEntityRemove = new Listener<>(p_Event ->
-    {
-        if (!Leave.getValue())
-            return;
-
-        if (!VerifyEntity(p_Event.GetEntity()))
-            return;
-
-        if (Entities.contains(p_Event.GetEntity().getName()))
-        {
-            Entities.remove(p_Event.GetEntity().getName());
-            Notify(String.format("%s has left your visual range.", p_Event.GetEntity().getName()));
-        }
-    });
-
-    private boolean VerifyEntity(Entity p_Entity)
-    {
-        if (!(p_Entity instanceof EntityPlayer))
+    private boolean VerifyEntity(Entity entity) {
+        if (!(entity instanceof EntityPlayer))
             return false;
 
-        if (p_Entity == mc.player)
+        if (entity == mc.player)
             return false;
 
-        if (!Friends.getValue() && FriendManager.Get().IsFriend(p_Entity))
-            return false;
-
-        return true;
+        return Friends.getValue() || !FriendManager.Get().IsFriend(entity);
     }
 
-    private void Notify(String p_Msg)
-    {
-        switch (Mode.getValue())
-        {
+    private void Notify(String msg) {
+        switch (Mode.getValue()) {
             case Chat:
-                SendMessage(p_Msg);
+                SendMessage(msg);
                 break;
             case Notification:
-                NotificationManager.Get().AddNotification("VisualRange", p_Msg);
+                NotificationManager.Get().AddNotification("VisualRange", msg);
                 break;
             case Both:
-                SendMessage(p_Msg);
-                NotificationManager.Get().AddNotification("VisualRange", p_Msg);
+                SendMessage(msg);
+                NotificationManager.Get().AddNotification("VisualRange", msg);
                 break;
         }
+    }
+
+    private enum Modes {
+        Chat,
+        Notification,
+        Both,
     }
 }

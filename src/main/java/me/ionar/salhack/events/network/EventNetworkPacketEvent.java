@@ -6,9 +6,9 @@ import net.minecraft.network.Packet;
 public class EventNetworkPacketEvent extends MinecraftEvent {
     public Packet m_Packet;
 
-    public EventNetworkPacketEvent(Packet p_Packet) {
+    public EventNetworkPacketEvent(Packet packet) {
         super();
-        m_Packet = p_Packet;
+        m_Packet = packet;
     }
 
     public Packet GetPacket() {

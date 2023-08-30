@@ -20,12 +20,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
 
 /**
  * Renders particles
@@ -122,7 +118,7 @@ public abstract class MixinGuiMainMenu extends GuiScreen {
         GlStateManager.pushMatrix();
         RenderHelper.enableGUIStandardItemLighting();
 
-        particleRenderer.bindTexture(TITLE, titleX, titleY, 150, 50, 0F, 0F, 1F, 1F);
+        ParticleRenderer.bindTexture(TITLE, titleX, titleY, 150, 50, 0F, 0F, 1F, 1F);
         GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
         GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 
