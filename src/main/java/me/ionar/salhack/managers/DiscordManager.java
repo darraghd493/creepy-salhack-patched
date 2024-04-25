@@ -11,6 +11,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+// TODO: look into lib potentially not loading
 public class DiscordManager {
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -27,6 +28,11 @@ public class DiscordManager {
     public void enable() {
         if (task != null) {
             task.cancel(true);
+        }
+
+        if (lib == null) {
+            System.out.println("Discord RPC lib not loaded. Not enabling Discord RPC.");
+            return;
         }
 
         _rpcModule = (DiscordRPCModule) ModuleManager.Get().GetMod(DiscordRPCModule.class);
@@ -53,7 +59,12 @@ public class DiscordManager {
 
     public void disable() {
         if (task != null) {
-            lib.Discord_Shutdown();
+            if (lib != null) {
+                lib.Discord_Shutdown();
+            } else {
+                System.out.println("Discord RPC lib not loaded. Not disabling Discord RPC.");
+            }
+
             task.cancel(true);
             task = null;
         }
