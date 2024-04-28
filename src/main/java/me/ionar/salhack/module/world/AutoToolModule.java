@@ -26,7 +26,7 @@ import net.minecraft.util.math.BlockPos;
 public final class AutoToolModule extends Module {
 
     public final Value<Boolean> silent = new Value<Boolean>("Silent", new String[]
-            {"Sil"}, "Hold any item and spoof your mining tool.", true);
+            {"Sil"}, "Hold any item and spoof your mining tool.", false);
     public final Value<Boolean> GoBack = new Value<Boolean>("GoBack", new String[]{"ToolBack"}, "Replaces back to your original hotbar item, if you finish mining something", false);
     public BlockPos position;
     public EnumFacing facing;
